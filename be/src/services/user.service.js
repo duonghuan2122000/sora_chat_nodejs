@@ -1,0 +1,85 @@
+import { LoginErrorInfo } from "#src/common/const.common.js";
+import { UserModel } from "#src/data/entities/user.entity.js";
+import {
+  comparePassword,
+  genJwt,
+  getCurrentTime,
+  getNewUUID,
+  hashPassword,
+} from "#src/utils/common.util.js";
+import { ResponseUtil } from "#src/utils/request.util.js";
+
+class UserService {
+  /**
+   * Hàm tạo người dùng
+   */
+  async createUser(payload) {
+    let user = {
+      ...payload,
+      _id: getNewUUID(),
+      created_date: getCurrentTime(),
+      password_hashed: await hashPassword(payload.password),
+    };
+
+    user = await UserModel.insertOne(user);
+    return user;
+  }
+
+  /**
+   * Hàm login user
+   */
+  async login(payload) {
+    let user = await UserModel.findOne({ username: payload.username }).lean();
+    // verify mật khẩu
+    let validPass = await comparePassword(
+      payload.password,
+      user.password_hashed
+    );
+    if (!validPass) {
+      return ResponseUtil.error(
+        LoginErrorInfo.Code.USERNAME_PASSWORD_INVALID,
+        LoginErrorInfo.Message.USERNAME_PASSWORD_INVALID
+      );
+    }
+    let token = await genJwt({ sub: user._id });
+    return ResponseUtil.success({ token });
+  }
+
+  /**
+   * Hàm tìm kiếm user bằng username, firstname, lastname
+   * @author dbhuan 25.12.2025
+   */
+  async searchUser(payload) {
+    let filters = {
+      $or: [
+        { username: { $regex: payload.key_search, $options: "i" } },
+        { first_name: { $regex: payload.key_search, $options: "i" } },
+        { last_name: { $regex: payload.key_search, $options: "i" } },
+      ],
+    };
+    let totalCount = await UserModel.countDocuments(filters).lean();
+    if (totalCount == 0) {
+      return {
+        total_count: 0,
+        items: [],
+      };
+    }
+    let users = await UserModel.find(filters)
+      .skip(payload.skip)
+      .limit(payload.limit)
+      .lean();
+    return {
+      total_count: totalCount,
+      items: users.map((u) => {
+        return {
+          id: u._id,
+          first_name: u.first_name,
+          last_name: u.last_name,
+          username: u.username,
+        };
+      }),
+    };
+  }
+}
+
+export const userService = new UserService();

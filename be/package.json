@@ -1,0 +1,34 @@
+{
+  "name": "be",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon ./bin/main.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@socket.io/redis-adapter": "^8.3.0",
+    "@socket.io/redis-streams-adapter": "^0.2.3",
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "luxon": "^3.7.2",
+    "mongoose": "^9.0.2",
+    "redis": "^5.10.0",
+    "socket.io": "^4.8.2",
+    "uuid": "^13.0.0",
+    "zod": "^4.2.1"
+  },
+  "imports": {
+    "#src/*": "./src/*"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}
