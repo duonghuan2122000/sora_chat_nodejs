@@ -18,3 +18,15 @@ export const createConversationValidationSchema = z.object({
     })
   ),
 });
+
+export const getMessagesByConversationValidationSchema = z.object({
+  /**
+   * vị trí bắt đầu
+   */
+  skip: z.number().min(0).default(0),
+
+  /**
+   * Số bản ghi muốn lấy
+   */
+  take: z.number().min(1).default(10),
+});

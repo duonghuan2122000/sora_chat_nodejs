@@ -53,3 +53,16 @@ export const decodeJwt = async (token) => {
   let payload = jwt.verify(token, process.env.JWT_SECRET);
   return payload;
 };
+
+/**
+ * Hàm lấy room của người dùng
+ * @author dbhuan 27.12.2025
+ */
+export const getUserRoom = async (userId) => `user:${userId}`;
+
+/**
+ * Hàm lấy room của cuộc trò chuyện
+ * @author dbhuan 27.12.2025
+ */
+export const getConversationRoom = async (conversationId) =>
+  `conversation:${conversationId}`;

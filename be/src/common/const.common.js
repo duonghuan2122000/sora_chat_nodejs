@@ -61,6 +61,24 @@ export const CreateConversationErrorInfo = {
   },
 };
 
+export const GetMessagesByConversationErrorInfo = {
+  Code: {
+    BAD_REQUEST: "BAD_REQUEST",
+  },
+  Message: {
+    BAD_REQUEST: "Thông tin request không hợp lệ",
+  },
+};
+
+export const ChatMessageErrorInfo = {
+  Code: {
+    CONVERSATION_NOT_FOUND: "CONVERSATION_NOT_FOUND",
+  },
+  Message: {
+    CONVERSATION_NOT_FOUND: "Cuộc trò chuyện không tồn tại",
+  },
+};
+
 /**
  * Url path định nghĩa chung
  * @author 24.12.2025
@@ -78,10 +96,13 @@ export const AppUrlPath = {
   Conversations: {
     BASE: "/conversations",
     CREATE: "/",
+    MESSAGES_BY_CONVERSATION_ID: "/:conversation_id/messages",
   },
 };
 
 export const SocketEventName = {
+  CONNECTION: "connection",
+
   CHAT_MESSAGE_DIRECT: "chat:message:direct",
 
   CHAT_MESSAGE: "chat:message",

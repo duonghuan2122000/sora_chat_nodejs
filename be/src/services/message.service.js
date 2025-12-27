@@ -18,6 +18,22 @@ class MessageService {
     message = await MessageModel.insertOne(message);
     return message;
   }
+
+  /**
+   * Lấy danh sách message theo conversation
+   * @author dbhuan 27.12.2025
+   */
+  async getMessagesByConversation(payload) {
+    let messages = await MessageModel.find({
+      conversation_id: payload.conversation_id,
+    })
+      .sort({ "timestamps.created_at": -1 })
+      .skip(payload.skip)
+      .limit(payload.limit)
+      .lean();
+
+    return messages;
+  }
 }
 
 export const messageService = new MessageService();
