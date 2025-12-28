@@ -11,10 +11,18 @@ import { messageService } from "#src/services/message.service.js";
 import { conversationService } from "#src/services/conversation.service.js";
 import { ResponseUtil } from "#src/utils/request.util.js";
 import { MessageBlockType } from "#src/data/entities/message.entity.js";
+import cookie from "cookie";
 
 export const handleSocket = async (io) => {
   io.engine.use(async (req, res, next) => {
-    const token = req._query.token;
+    let token;
+    if (req.headers.cookie) {
+      const cookies = cookie.parse(req.headers.cookie);
+      token = cookies["x_sora_access_token"];
+    }
+    if (!token) {
+      token = req._query.token;
+    }
     if (!token) {
       const err = new Error("not authorized");
       err.data = { content: "Please retry later" }; // additional details

@@ -41,8 +41,9 @@ class UserService {
         LoginErrorInfo.Message.USERNAME_PASSWORD_INVALID
       );
     }
-    let token = await genJwt({ sub: user._id });
-    return ResponseUtil.success({ token });
+    let expiresIn = parseInt(process.env.JWT_EXPIRES_IN); // 1 ngày
+    let token = await genJwt({ sub: user._id }, expiresIn);
+    return ResponseUtil.success({ token, expires_in: expiresIn });
   }
 
   /**
@@ -50,13 +51,19 @@ class UserService {
    * @author dbhuan 25.12.2025
    */
   async searchUser(payload) {
-    let filters = {
-      $or: [
+    let filters = {};
+    if (payload.key_search) {
+      filters["$or"] = [
         { username: { $regex: payload.key_search, $options: "i" } },
         { first_name: { $regex: payload.key_search, $options: "i" } },
         { last_name: { $regex: payload.key_search, $options: "i" } },
-      ],
-    };
+      ];
+    }
+    if (payload.user_ids) {
+      filters["_id"] = {
+        $in: payload.user_ids,
+      };
+    }
     let totalCount = await UserModel.countDocuments(filters).lean();
     if (totalCount == 0) {
       return {

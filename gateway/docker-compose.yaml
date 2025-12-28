@@ -1,0 +1,7 @@
+services:
+  sora-gateway:
+    image: nginx:1.29.4-alpine
+    ports:
+      - "3456:80"
+    volumes:
+      - ./gateway.conf:/etc/nginx/conf.d/default.conf

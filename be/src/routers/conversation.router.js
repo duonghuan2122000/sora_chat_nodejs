@@ -53,15 +53,34 @@ router.post(
         );
     }
 
-    return res.status(HttpStatusCode.OK).json(
-      ResponseUtil.success(
-        await messageService.getMessagesByConversation({
-          ...resultParser.data,
-          conversation_id: req.params.conversation_id,
-        })
-      )
-    );
+    let result = await messageService.getMessagesByConversation({
+      ...resultParser.data,
+      conversation_id: req.params.conversation_id,
+    });
+
+    if (result?.length > 0) {
+      result = result.map((message) => {
+        message.id = message._id;
+        delete message._id;
+        delete message.__v;
+        return message;
+      });
+    }
+
+    return res.status(HttpStatusCode.OK).json(ResponseUtil.success(result));
   }
 );
+
+router.get(AppUrlPath.Conversations.GET_CONVERSATION, async (req, res) => {
+  let conversation = await conversationService.getConversation(
+    req.params.conversation_id
+  );
+  if (conversation) {
+    conversation.id = conversation._id;
+    delete conversation._id;
+    delete conversation.__v;
+  }
+  return res.status(HttpStatusCode.OK).json(ResponseUtil.success(conversation));
+});
 
 export default router;

@@ -53,5 +53,10 @@ export const searchUserValidationSchema = z.object({
   /**
    * Key tìm kiếm
    */
-  key_search: z.string().nonempty().min(1),
+  key_search: z.string(),
+
+  /**
+   * Danh sách id người dùng
+   */
+  user_ids: z.array(z.string()),
 });

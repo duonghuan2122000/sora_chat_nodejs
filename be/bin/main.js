@@ -19,6 +19,7 @@ const subClient = pubClient.duplicate();
     const io = new Server(httpServer, {
       /* options */
       adapter: createAdapter(pubClient, subClient),
+      // path: process.env.SOCKET_PATH,
     });
 
     await handleSocket(io);

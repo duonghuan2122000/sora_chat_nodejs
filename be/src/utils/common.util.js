@@ -38,8 +38,10 @@ export const comparePassword = async (password, hash) =>
  * @returns token
  * @author 24.12.2025
  */
-export const genJwt = async (payload) => {
-  let token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "24h" });
+export const genJwt = async (payload, expiresIn = 86400) => {
+  let token = jwt.sign(payload, process.env.JWT_SECRET, {
+    expiresIn: expiresIn,
+  });
   return token;
 };
 

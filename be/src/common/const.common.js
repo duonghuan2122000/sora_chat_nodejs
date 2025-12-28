@@ -97,6 +97,7 @@ export const AppUrlPath = {
     BASE: "/conversations",
     CREATE: "/",
     MESSAGES_BY_CONVERSATION_ID: "/:conversation_id/messages",
+    GET_CONVERSATION: "/:conversation_id",
   },
 };
 

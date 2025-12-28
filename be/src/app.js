@@ -1,4 +1,6 @@
 import express from "express";
+import helmet from "helmet";
+import cors from "cors";
 import { ResponseUtil } from "#src/utils/request.util.js";
 import { AppUrlPath, HttpStatusCode } from "#src/common/const.common.js";
 import userRouter from "#src/routers/user.router.js";
@@ -6,6 +8,8 @@ import conversationRouter from "#src/routers/conversation.router.js";
 
 const app = express();
 
+app.use(helmet());
+app.use(cors());
 app.use(express.json());
 
 app.get(AppUrlPath.Healthz.BASE, (_, res) => {
