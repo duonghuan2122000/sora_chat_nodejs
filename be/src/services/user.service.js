@@ -6,6 +6,7 @@ import {
   getCurrentTime,
   getNewUUID,
   hashPassword,
+  decodeJwt,
 } from "#src/utils/common.util.js";
 import { ResponseUtil } from "#src/utils/request.util.js";
 
@@ -42,7 +43,16 @@ class UserService {
       );
     }
     let expiresIn = parseInt(process.env.JWT_EXPIRES_IN); // 1 ngày
-    let token = await genJwt({ sub: user._id }, expiresIn);
+    let token = await genJwt(
+      {
+        sub: user._id,
+        username: user.username,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        v: parseInt(process.env.JWT_VERSION ?? "1"),
+      },
+      expiresIn
+    );
     return ResponseUtil.success({ token, expires_in: expiresIn });
   }
 
@@ -85,6 +95,16 @@ class UserService {
           username: u.username,
         };
       }),
+    };
+  }
+
+  async getCurUser(token) {
+    let payload = await decodeJwt(token);
+    return {
+      id: payload.sub,
+      first_name: payload.first_name,
+      last_name: payload.last_name,
+      username: payload.username,
     };
   }
 }

@@ -11,6 +11,12 @@ export default defineNuxtConfig({
       ],
     },
   },
+  imports: {
+    dirs: [
+      // Scan top-level composables
+      "~/composables",
+    ],
+  },
 
   devtools: {
     enabled: true,

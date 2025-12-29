@@ -21,6 +21,9 @@ useSeoMeta({
   twitterCard: "summary_large_image",
 });
 
+const { fetchUser } = useAuth();
+await fetchUser();
+
 onMounted(() => {
   const socketio = io(`/internal/chat`, { path: "/internal/socket.io" });
 

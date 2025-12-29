@@ -67,4 +67,24 @@ router.post(AppUrlPath.Users.SEARCH, async (req, res) => {
     .json(ResponseUtil.success(await userService.searchUser(req.body)));
 });
 
+router.get(AppUrlPath.Users.ME, async (req, res) => {
+  let token = req.cookies?.x_sora_access_token;
+  if (!token) {
+    token = req.headers["authorization"]?.replace("Bearer ", "");
+  }
+  if (!token) {
+    return res
+      .status(HttpStatusCode.UNAUTHORIZED)
+      .json(
+        ResponseUtil.error(
+          HttpStatusCode.UNAUTHORIZED,
+          HttpStatusCode.UNAUTHORIZED
+        )
+      );
+  }
+  return res
+    .status(HttpStatusCode.OK)
+    .json(ResponseUtil.success(await userService.getCurUser(token)));
+});
+
 export default router;
