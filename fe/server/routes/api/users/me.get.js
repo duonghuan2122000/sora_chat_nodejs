@@ -1,7 +1,6 @@
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
   const cookies = parseCookies(event);
-  return { cookies };
   const response = await $fetch(`${config.beHost}/users/me`, {
     method: "GET",
     headers: {
