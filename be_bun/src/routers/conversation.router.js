@@ -1,0 +1,79 @@
+import { Hono } from "hono";
+import {
+  createConversationValidationSchema,
+  getMessagesByConversationValidationSchema,
+} from "#src/validations/conversation.validation.js";
+import { AppUrlPath } from "#src/common/const.common";
+import { validator } from "hono/validator";
+
+const app = new Hono();
+
+// POST /conversations
+app.post(
+  AppUrlPath.Conversations.CREATE,
+  validator("json", (value, c) => {
+    const parsed = createConversationValidationSchema.safeParse(value);
+    if (!parsed.success) {
+      return c.json(
+        ResponseUtil.error(
+          CreateConversationErrorInfo.Code.BAD_REQUEST,
+          CreateConversationErrorInfo.Message.BAD_REQUEST
+        )
+      );
+    }
+    return parsed.data;
+  }),
+  async (c) => {
+    let { body } = c.req.valid("json");
+    return c.json(ResponseUtil.success(await conversationService.create(body)));
+  }
+);
+
+// POST /conversations/:conversation_id/messages
+app.post(
+  AppUrlPath.Conversations.MESSAGES_BY_CONVERSATION_ID,
+  validator("json", (value, c) => {
+    const parsed = getMessagesByConversationValidationSchema.safeParse(value);
+    if (!parsed.success) {
+      return c.json(
+        ResponseUtil.error(
+          GetMessagesByConversationErrorInfo.Code.BAD_REQUEST,
+          GetMessagesByConversationErrorInfo.Message.BAD_REQUEST
+        )
+      );
+    }
+    return parsed.data;
+  }),
+  async (c) => {
+    let { body } = c.req.valid("json");
+    let result = await messageService.getMessagesByConversation({
+      ...body,
+      conversation_id: c.req.param("conversation_id"),
+    });
+
+    if (result?.length > 0) {
+      result = result.map((message) => {
+        message.id = message._id;
+        delete message._id;
+        delete message.__v;
+        return message;
+      });
+    }
+    return c.json(ResponseUtil.success(result));
+  }
+);
+
+// GET /conversations/:conversation_id
+app.get(AppUrlPath.Conversations.GET_CONVERSATION, async (c) => {
+  let conversation = await conversationService.getConversation(
+    c.req.param("conversation_id")
+  );
+  if (conversation) {
+    conversation.id = conversation._id;
+    delete conversation._id;
+    delete conversation.__v;
+  }
+  return c.json(ResponseUtil.success(conversation));
+});
+
+export default app;
