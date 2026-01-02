@@ -1,0 +1,11 @@
+# Ignore file IDE setting
+.vscode/
+# Ignore folder node_modules
+node_modules/
+
+# Ignore file build
+dist/
+
+# Ignore các file folder khác không cần sửa dung
+npm-debug.log
+test/

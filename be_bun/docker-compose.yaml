@@ -1,5 +1,6 @@
 services:
   sora_chat_be:
+    image: sora_chat_be:1.0.0
     build:
       context: .
       dockerfile: Dockerfile
