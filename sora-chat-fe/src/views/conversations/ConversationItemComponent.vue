@@ -1,0 +1,86 @@
+<!-- 
+    Giao diện cuộc trò chuyện ở left menu
+    @author dbhuan 01.01.2026
+-->
+<template>
+  <ContextMenu>
+    <ContextMenuTrigger>
+      <div
+        class="flex flex-row px-4 py-4 gap-2 items-center cursor-pointer hover:bg-gray-100 mb-[1px] rounded-[8px]"
+        :class="{ 'bg-gray-100': active }"
+      >
+        <div class="flex-none w-[36px] h-[36px]">
+          <div class="relative">
+            <img
+              src="https://cdn2.tuoitre.vn/zoom/515_322/471584752817336320/data/teen360/news/2020/09/01/59881/1598972593_118265345_2621091828152910_2700791632228574126_n.jpg"
+              alt=""
+              class="w-[36px] h-[36px] rounded-[50%]"
+            />
+            <div
+              v-if="online"
+              class="absolute h-[12px] w-[12px] bg-green-500 rounded-[50%] bottom-[-2px] right-[-2px] border border-gray-200"
+            ></div>
+          </div>
+        </div>
+        <div class="flex-1 truncate overflow-hidden text-ellipsis">Dương Huân</div>
+        <div class="flex-0 pl-2">
+          <div
+            v-if="props.unReadMessage > 0"
+            class="flex flex-row items-center justify-center bg-red-300 text-center w-[28px] h-[28px] rounded-[50%] text-white text-sm"
+          >
+            {{ unReadMessageText }}
+          </div>
+        </div>
+      </div>
+    </ContextMenuTrigger>
+    <ContextMenuContent>
+      <ContextMenuItem>Tắt thông báo</ContextMenuItem>
+    </ContextMenuContent>
+  </ContextMenu>
+</template>
+
+<script setup>
+import { computed } from "vue";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+
+const props = defineProps({
+  /**
+   * Cờ cho biết phần tử có đang được chọn không?
+   * Mặc định: false
+   */
+  active: {
+    type: Boolean,
+    default: false,
+  },
+
+  /**
+   * Cho biết cuộc trò chuyện có user đang ở trạng thái online
+   * Mặc định: false
+   */
+  online: {
+    type: Boolean,
+    default: false,
+  },
+
+  /**
+   * Số lượng tin nhắn chưa đọc
+   * Mặc định: 0
+   */
+  unReadMessage: {
+    type: Number,
+    default: 0,
+  },
+});
+
+const unReadMessageText = computed(() => {
+  if (props.unReadMessage > 10) {
+    return "10+";
+  }
+  return props.unReadMessage.toString();
+});
+</script>
