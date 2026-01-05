@@ -70,6 +70,15 @@ export const GetMessagesByConversationErrorInfo = {
   },
 };
 
+export const GetLatestConversationsErrorInfo = {
+  Code: {
+    BAD_REQUEST: "BAD_REQUEST",
+  },
+  Message: {
+    BAD_REQUEST: "Thông tin request không hợp lệ",
+  },
+};
+
 export const ChatMessageErrorInfo = {
   Code: {
     CONVERSATION_NOT_FOUND: "CONVERSATION_NOT_FOUND",
@@ -78,6 +87,8 @@ export const ChatMessageErrorInfo = {
     CONVERSATION_NOT_FOUND: "Cuộc trò chuyện không tồn tại",
   },
 };
+
+export const CurrentUserKey = "sora_current_user";
 
 /**
  * Url path định nghĩa chung
@@ -99,6 +110,7 @@ export const AppUrlPath = {
     CREATE: "/",
     MESSAGES_BY_CONVERSATION_ID: "/:conversation_id/messages",
     GET_CONVERSATION: "/:conversation_id",
+    LATEST_CONVERSATIONS: "/latest",
   },
 };
 

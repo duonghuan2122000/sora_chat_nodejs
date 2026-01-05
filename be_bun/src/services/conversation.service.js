@@ -48,6 +48,30 @@ class ConversationService {
   async getConversation(id) {
     return await ConversationModel.findOne({ _id: id }).lean();
   }
+
+  /**
+   * Lấy danh sách cuộc trò chuyện gần nhất
+   * @author 03.01.2026
+   */
+  async getLatestConversations({
+    user_id,
+    skip = 0,
+    limit = 10,
+    key_search = "",
+  }) {
+    let filters = {
+      "members.user_id": user_id,
+    };
+    if (key_search) {
+      filters["name"] = { $regex: key_search, $options: "i" };
+    }
+    let result = await ConversationModel.find(filters)
+      .sort({ "timestamps.updated_at": -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
+    return result;
+  }
 }
 
 export const conversationService = new ConversationService();

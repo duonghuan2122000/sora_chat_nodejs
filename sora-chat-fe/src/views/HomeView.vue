@@ -19,6 +19,5 @@
 
 <script setup>
 import ConversationLeftMenuComponent from "@/views/conversations/ConversationLeftMenuComponent.vue";
-import { Input } from "@/components/ui/input";
 import ToolbarComponent from "@/views/conversations/ToolbarComponent.vue";
 </script>

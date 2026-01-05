@@ -2,6 +2,15 @@
   <RouterView />
 </template>
 
+<script setup>
+import { onMounted } from "vue";
+import { userApi } from "@/apis/users/user.api";
+
+onMounted(() => {
+  userApi.getCurrentUserAsync();
+});
+</script>
+
 <style>
 html,
 body,

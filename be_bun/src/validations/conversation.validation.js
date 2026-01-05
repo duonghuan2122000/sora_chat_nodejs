@@ -30,3 +30,20 @@ export const getMessagesByConversationValidationSchema = z.object({
    */
   take: z.number().min(1).default(10),
 });
+
+export const getLatestConversationsValidationSchema = z.object({
+  /**
+   * vị trí bắt đầu
+   */
+  skip: z.number().min(0).default(0),
+
+  /**
+   * Số bản ghi muốn lấy
+   */
+  take: z.number().min(1).default(10),
+
+  /**
+   * Key tìm kiếm
+   */
+  key_search: z.string().optional(),
+});

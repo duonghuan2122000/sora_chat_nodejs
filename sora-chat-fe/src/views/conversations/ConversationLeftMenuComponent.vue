@@ -6,17 +6,17 @@
   <div class="flex-none w-[320px] py-4">
     <div class="bg-white flex flex-col h-[100%] rounded-[12px]">
       <div class="flex-0 p-4 border-b border-gray-200 flex flex-col gap-2">
-        <Input placeholder="Tìm kiếm user, nhóm" />
+        <Input placeholder="Tìm kiếm user, nhóm" v-model="keySearch" @keyup="handleSearch" />
         <div>
           <CreateGroupComponent />
         </div>
       </div>
       <div class="flex-1 overflow-y-auto px-2 py-2">
         <ConversationItemComponent
-          v-for="n in 20"
-          :active="n == 1"
-          :online="n == 1"
-          :unReadMessage="n == 1 ? 10 : 0"
+          v-for="(conversation, index) in conversationStore.conversations"
+          :active="index == 1"
+          :online="index == 1"
+          :unReadMessage="index == 1 ? 10 : 0"
         />
       </div>
     </div>
@@ -27,4 +27,20 @@
 import { Input } from "@/components/ui/input";
 import CreateGroupComponent from "@/views/conversations/CreateGroupComponent.vue";
 import ConversationItemComponent from "@/views/conversations/ConversationItemComponent.vue";
+import { onMounted, ref } from "vue";
+import { useConversationStore } from "@/stores/conversation";
+
+const keySearch = ref("");
+
+const conversationStore = useConversationStore();
+
+onMounted(() => {
+  conversationStore.getLatestConversationsAsync();
+});
+
+const handleSearch = async (e) => {
+  if (e?.keyCode === 13) {
+    await conversationStore.getSearchResultAsync({ key_search: keySearch.value });
+  }
+};
 </script>

@@ -69,7 +69,7 @@ class UserService {
         { last_name: { $regex: payload.key_search, $options: "i" } },
       ];
     }
-    if (payload.user_ids) {
+    if (payload.user_ids?.length > 0) {
       filters["_id"] = {
         $in: payload.user_ids,
       };

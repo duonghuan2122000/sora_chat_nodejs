@@ -1,6 +1,5 @@
 import { DateTime } from "luxon";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import { sign as signJwt, verify as verifyJwt } from "hono/jwt";
 
 /**
  * Hàm lấy thời gian hiện tại (timezone UTC)
@@ -8,6 +7,17 @@ import jwt from "jsonwebtoken";
  * @author dbhuan 23.12.2025
  */
 export const getCurrentTime = () => DateTime.utc().toJSDate();
+
+/**
+ * Hàm cộng thời gian trong lớp DateTime
+ * @author dbhuan 02.01.2026
+ */
+export const addTime = (date, time) =>
+  DateTime.fromJSDate(date)
+    .plus({
+      seconds: time,
+    })
+    .toJSDate();
 
 /**
  * Hàm tạo uuid
@@ -20,7 +30,11 @@ export const getNewUUID = () => Bun.randomUUIDv7();
  * @param {string} password Mật khẩu
  * @returns Mật khẩu đã được hash
  */
-export const hashPassword = async (password) => await bcrypt.hash(password, 10);
+export const hashPassword = async (password) =>
+  await Bun.password.hash(password, {
+    algorithm: "bcrypt",
+    cost: 10,
+  });
 
 /**
  * Kiểm tra mật khẩu có hợp lệ?
@@ -29,7 +43,7 @@ export const hashPassword = async (password) => await bcrypt.hash(password, 10);
  * @returns true/false
  */
 export const comparePassword = async (password, hash) =>
-  await bcrypt.compare(password, hash);
+  await Bun.password.verify(password, hash);
 
 /**
  * Tạo jwt
@@ -38,9 +52,11 @@ export const comparePassword = async (password, hash) =>
  * @author 24.12.2025
  */
 export const genJwt = async (payload, expiresIn = 86400) => {
-  let token = jwt.sign(payload, process.env.JWT_SECRET, {
-    expiresIn: expiresIn,
-  });
+  if (typeof payload === "object") {
+    payload.exp = Math.floor(Date.now() / 1000) + expiresIn;
+  }
+  let token = await signJwt(payload, process.env.JWT_SECRET);
+
   return token;
 };
 
@@ -51,7 +67,7 @@ export const genJwt = async (payload, expiresIn = 86400) => {
  * @author dbhuan 23.12.2025
  */
 export const decodeJwt = async (token) => {
-  let payload = jwt.verify(token, process.env.JWT_SECRET);
+  let payload = await verifyJwt(token, process.env.JWT_SECRET);
   return payload;
 };
 

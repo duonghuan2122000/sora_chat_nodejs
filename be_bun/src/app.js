@@ -8,7 +8,7 @@ const app = new Hono();
 app.get(AppUrlPath.Healthz.BASE, (c) => {
   return c.json(ResponseUtil.success("health"));
 });
-app.use(AppUrlPath.Users.BASE, userRouter);
-app.use(AppUrlPath.Conversations.BASE, conversationRouter);
+app.route(AppUrlPath.Users.BASE, userRouter);
+app.route(AppUrlPath.Conversations.BASE, conversationRouter);
 
 export default app;

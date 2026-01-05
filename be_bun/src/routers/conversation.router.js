@@ -1,10 +1,14 @@
 import { Hono } from "hono";
 import {
   createConversationValidationSchema,
+  getLatestConversationsValidationSchema,
   getMessagesByConversationValidationSchema,
 } from "#src/validations/conversation.validation.js";
-import { AppUrlPath } from "#src/common/const.common";
+import { AppUrlPath, CurrentUserKey } from "#src/common/const.common";
 import { validator } from "hono/validator";
+import { conversationService } from "#src/services/conversation.service";
+import { authMiddleware } from "#src/middlewares/auth.middleware";
+import { ResponseUtil } from "#src/utils/request.util";
 
 const app = new Hono();
 
@@ -75,5 +79,32 @@ app.get(AppUrlPath.Conversations.GET_CONVERSATION, async (c) => {
   }
   return c.json(ResponseUtil.success(conversation));
 });
+
+// POST /conversations/latest
+app.post(
+  AppUrlPath.Conversations.LATEST_CONVERSATIONS,
+  authMiddleware,
+  validator("json", (value, c) => {
+    const parsed = getLatestConversationsValidationSchema.safeParse(value);
+    if (!parsed.success) {
+      return c.json(
+        ResponseUtil.error(
+          GetLatestConversationsErrorInfo.Code.BAD_REQUEST,
+          GetLatestConversationsErrorInfo.Message.BAD_REQUEST
+        )
+      );
+    }
+    return parsed.data;
+  }),
+  async (c) => {
+    let body = c.req.valid("json");
+    let user = c.get(CurrentUserKey);
+    let result = await conversationService.getLatestConversations({
+      ...body,
+      user_id: user.id,
+    });
+    return c.json(ResponseUtil.success(result));
+  }
+);
 
 export default app;
