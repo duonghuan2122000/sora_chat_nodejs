@@ -6,20 +6,24 @@ FROM oven/bun:1.3.5-alpine as build
 WORKDIR /app
 
 # Copy dependency files first (tối ưu cache)
-COPY package.json bun.lock ./
+COPY . .
 
 # Install dependencies (production only)
 RUN bun install --production --frozen-lockfile
 
-FROM oven/bun:1.3.5-alpine
+RUN bun build ./src/index.js --compile --compile-autoload-tsconfig --compile-autoload-package-json --minify --outfile ./sora_app_be
+
+FROM alpine:3.23
+
+RUN apk add --no-cache libstdc++ libgcc
 
 WORKDIR /app
 
 # Copy source code
-COPY --from=build /app/node_modules ./node_modules
-COPY . .
+COPY --from=build /app/sora_app_be ./sora_app_be
+COPY .env package.json jsconfig.json ./
 # Expose port (ví dụ Hono chạy 3000)
 EXPOSE 3000
 
 # Run app
-CMD ["bun", "run", "start"]
+CMD ["./sora_app_be"]
