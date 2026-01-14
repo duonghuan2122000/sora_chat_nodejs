@@ -21,7 +21,7 @@
               :modelValue="value"
               @update:modelValue="handleChange"
               placeholder="Nhập tên đăng nhập"
-              autoFocus
+              autofocus
               :aria-invalid="!!errors.length"
             />
             <ul v-if="errors" class="text-red-500 text-sm list-disc ml-4">
