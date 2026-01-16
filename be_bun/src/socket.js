@@ -14,12 +14,16 @@ import { MessageBlockType } from "#src/data/entities/message.entity.js";
 import cookie from "cookie";
 
 export const handleSocket = async (io) => {
-  io.use(async (req, res, next) => {
+  let chatIoNamespace = io.of("/chat");
+
+  chatIoNamespace.use(async (socket, next) => {
     let token;
+    let req = socket.request;
     if (req.headers.cookie) {
       const cookies = cookie.parse(req.headers.cookie);
       token = cookies["x_sora_access_token"];
     }
+
     if (!token) {
       token = req._query.token;
     }
@@ -33,14 +37,21 @@ export const handleSocket = async (io) => {
     next();
   });
 
-  let chatIoNamespace = io.of("/chat");
-
   // Khi người dùng kết nối socket
   chatIoNamespace.on(SocketEventName.CONNECTION, async (socket) => {
     let curUserId = socket.request.userId;
 
+    console.log(curUserId);
+
     // Thực hiện join room mặc định của user đó
     socket.join(await getUserRoom(curUserId));
+
+    chatIoNamespace
+      .to(await getUserRoom(curUserId))
+      .emit(
+        SocketEventName.CLIENT_CONNECTED,
+        ResponseUtil.success("connected")
+      );
 
     socket.on(SocketEventName.CHAT_MESSAGE, async (data) => {
       let conversation = await conversationService.getConversation(

@@ -27,6 +27,15 @@ export const HttpStatusCode = {
 export const RouterName = {
   Home: "home",
   Login: "login",
+  Conversation: "conversation",
 };
 
 export const EMPTY_UUID = "00000000-0000-0000-0000-000000000000";
+
+export const ConversationType = {
+  // chat trực tiếp
+  DIRECT: "direct",
+
+  // Nhóm chat
+  GROUP: "group",
+};

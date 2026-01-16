@@ -2,6 +2,7 @@ import {
   ConversationModel,
   ConversationType,
 } from "#src/data/entities/conversation.entity.js";
+import { UserModel } from "#src/data/entities/user.entity";
 import { getCurrentTime, getNewUUID } from "#src/utils/common.util.js";
 
 class ConversationService {
@@ -70,6 +71,31 @@ class ConversationService {
       .skip(skip)
       .limit(limit)
       .lean();
+
+    // Lấy danh sách user id của người dùng của các cuộc trò chuyện trực tiếp direct
+    let userIdsInDirect = result
+      .filter((c) => c.type === ConversationType.DIRECT)
+      .flatMap((c) =>
+        c.members.map((m) => m.user_id).filter((userId) => userId)
+      );
+
+    let users = await UserModel.find({
+      _id: { $in: userIdsInDirect },
+    })
+      .select({ _id: 1, username: 1, first_name: 1, last_name: 1 })
+      .lean();
+
+    result = result.map((c) => {
+      if (c.type !== ConversationType.DIRECT) {
+        return c;
+      }
+      c.members = c.members.map((m) => {
+        let user = users?.find((u) => u._id === m.user_id) ?? {};
+        return { ...m, ...user };
+      });
+      return c;
+    });
+
     return result;
   }
 }

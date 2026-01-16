@@ -23,13 +23,11 @@
           </div>
           <div class="flex-1 flex flex-col">
             <div class="truncate overflow-hidden text-ellipsis font-semibold">Dương Huân</div>
-            <div class="text-sm text-gray-400">Đang hoạt động</div>
+            <div v-if="false" class="text-sm text-gray-400">Đang hoạt động</div>
           </div>
         </div>
         <div>
-          <Button variant="outline" size="icon">
-            <Ellipsis />
-          </Button>
+          <ElButton :icon="Ellipsis"> </ElButton>
         </div>
       </div>
       <div class="flex-1 overflow-y-auto">
@@ -37,7 +35,9 @@
           <div>Chưa có tin nhắn. Hãy bắt đầu ngay với "Xin chào"</div>
         </div>
         <div v-else class="flex flex-col gap-10 px-4 py-4">
-          <div class="flex flex-row justify-center"><Spinner class="size-8" /></div>
+          <div class="flex flex-row justify-center">
+            <div v-loading="true" class="h-[28px] w-[28px]"></div>
+          </div>
           <MessageComponent v-for="n in 10" :isMessageCurrentUser="n == 1 ? true : false" />
         </div>
       </div>
@@ -50,7 +50,7 @@
           <div class="cursor-pointer">&#10006;</div>
         </div>
         <div class="p-4">
-          <Input placeholder="Nhập tin nhắn" />
+          <ElInput placeholder="Nhập tin nhắn" />
         </div>
       </div>
     </div>
@@ -58,9 +58,9 @@
 </template>
 
 <script setup>
-import { Input } from "@/components/ui/input";
 import { Ellipsis } from "lucide-vue-next";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
 import MessageComponent from "@/views/conversations/MessageComponent.vue";
+
+// Components
+import { ElButton, ElInput } from "element-plus";
 </script>
