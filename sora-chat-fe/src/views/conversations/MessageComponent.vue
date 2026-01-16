@@ -24,36 +24,15 @@
           class="border border-gray-200 rounded-[8px] px-3 py-2 inline-block max-w-[400px]"
           :class="{ 'bg-green-100': isMessageCurrentUser, 'bg-gray-100': !isMessageCurrentUser }"
         >
-          <ContextMenu>
-            <ContextMenuTrigger>
-              <div class="relative">
-                <div title="Thứ 5 - 01/01/2026">
-                  Xin chào sfsfsfs fs sfsfsf s sfdsfdsf sf sfsdfsdfsdf sf sfsfdsfsf sf sfsf
-                  &#128512; fsfs sfsf sfsf sfsfsfs sf sfsfsfsfs sf sfsdfsdf sf sdfsdfsfs fs
-                  fsfsdfsdf sf sfsfsf
-                </div>
-                <div class="absolute bottom-[-20px] right-[-5px] flex flex-row">
-                  <div class="border border-gray-100 rounded-[50%] cursor-pointer bg-white">😂</div>
-                </div>
-              </div>
-            </ContextMenuTrigger>
-            <ContextMenuContent>
-              <div class="flex flex-col flex-wrap gap-1 p-2">
-                <Popover>
-                  <PopoverTrigger as-child>
-                    <Button variant="outline"> Bày tỏ cảm xúc </Button>
-                  </PopoverTrigger>
-                  <PopoverContent class="w-[100px]">
-                    <div class="flex flex-row">
-                      <div class="cursor-pointer">👍</div>
-                      <div class="cursor-pointer">😂</div>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-                <Button variant="outline"> Trả lời </Button>
-              </div>
-            </ContextMenuContent>
-          </ContextMenu>
+          <div class="relative">
+            <div title="Thứ 5 - 01/01/2026">
+              Xin chào sfsfsfs fs sfsfsf s sfdsfdsf sf sfsdfsdfsdf sf sfsfdsfsf sf sfsf &#128512;
+              fsfs sfsf sfsf sfsfsfs sf sfsfsfsfs sf sfsdfsdf sf sdfsdfsfs fs fsfsdfsdf sf sfsfsf
+            </div>
+            <div class="absolute bottom-[-20px] right-[-5px] flex flex-row">
+              <div class="border border-gray-100 rounded-[50%] cursor-pointer bg-white">😂</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -61,10 +40,9 @@
 </template>
 
 <script setup>
-import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ContextMenu, ContextMenuContent, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { computed } from "vue";
+
+// Components
 
 const props = defineProps({
   /**
