@@ -9,6 +9,7 @@ import { validator } from "hono/validator";
 import { conversationService } from "#src/services/conversation.service";
 import { authMiddleware } from "#src/middlewares/auth.middleware";
 import { ResponseUtil } from "#src/utils/request.util";
+import { messageService } from "#src/services/message.service";
 
 const app = new Hono();
 

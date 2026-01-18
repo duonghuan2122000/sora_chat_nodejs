@@ -47,7 +47,27 @@ class ConversationService {
    * Lấy thông tin conversation
    */
   async getConversation(id) {
-    return await ConversationModel.findOne({ _id: id }).lean();
+    let conversation = await ConversationModel.findOne({ _id: id }).lean();
+    if (
+      conversation &&
+      conversation.type === ConversationType.DIRECT &&
+      conversation.members?.length > 0
+    ) {
+      let userIds = conversation.members
+        .map((m) => m.user_id)
+        .filter((userId) => userId);
+      let users = await UserModel.find({ _id: { $in: userIds } })
+        .select({ username: 1, first_name: 1, last_name: 1 })
+        .lean();
+      conversation.members = conversation.members.map((m) => {
+        let user = users?.find((u) => u._id === m.user_id) ?? {};
+        if (user?._id) {
+          delete user._id;
+        }
+        return { ...m, ...user };
+      });
+    }
+    return conversation;
   }
 
   /**
@@ -82,7 +102,7 @@ class ConversationService {
     let users = await UserModel.find({
       _id: { $in: userIdsInDirect },
     })
-      .select({ _id: 1, username: 1, first_name: 1, last_name: 1 })
+      .select({ username: 1, first_name: 1, last_name: 1 })
       .lean();
 
     result = result.map((c) => {
@@ -91,6 +111,9 @@ class ConversationService {
       }
       c.members = c.members.map((m) => {
         let user = users?.find((u) => u._id === m.user_id) ?? {};
+        if (user?._id) {
+          delete user._id;
+        }
         return { ...m, ...user };
       });
       return c;

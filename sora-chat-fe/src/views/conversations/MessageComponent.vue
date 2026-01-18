@@ -25,12 +25,16 @@
           :class="{ 'bg-green-100': isMessageCurrentUser, 'bg-gray-100': !isMessageCurrentUser }"
         >
           <div class="relative">
-            <div title="Thứ 5 - 01/01/2026">
-              Xin chào sfsfsfs fs sfsfsf s sfdsfdsf sf sfsdfsdfsdf sf sfsfdsfsf sf sfsf &#128512;
-              fsfs sfsf sfsf sfsfsfs sf sfsfsfsfs sf sfsdfsdf sf sdfsdfsfs fs fsfsdfsdf sf sfsfsf
-            </div>
+            <ElTooltip :content="timeSentFormatted" effect="dark" placement="top-start">
+              {{ messageFormated }}
+            </ElTooltip>
             <div class="absolute bottom-[-20px] right-[-5px] flex flex-row">
-              <div class="border border-gray-100 rounded-[50%] cursor-pointer bg-white">😂</div>
+              <div
+                v-if="false"
+                class="border border-gray-100 rounded-[50%] cursor-pointer bg-white"
+              >
+                😂
+              </div>
             </div>
           </div>
         </div>
@@ -40,20 +44,47 @@
 </template>
 
 <script setup>
+import { formatDateTime } from "@/commons/fn.common";
+import { useAuthStore } from "@/stores/auth";
 import { computed } from "vue";
 
 // Components
+import { ElTooltip } from "element-plus";
 
 const props = defineProps({
   /**
-   * Cờ cho biết có phải là message của user hiện tại
-   * Mặc định: false
+   * Thông tin message
+   * @author dbhuan 17.01.2026
    */
-  isMessageCurrentUser: {
-    type: Boolean,
-    default: false,
+  message: {
+    type: Object,
+    default: null,
   },
 });
 
-const isMessageCurrentUser = computed(() => props.isMessageCurrentUser);
+let authStore = useAuthStore();
+
+const isMessageCurrentUser = computed(() => {
+  return props.message?.sender?.user_id === authStore.user?.id;
+});
+
+const messageFormated = computed(() => {
+  let blocks = props.message?.message?.blocks ?? [];
+  return blocks.reduce((msg, block) => {
+    switch (block?.type) {
+      case "text":
+        return msg + block?.value ?? "";
+
+      default:
+        return msg;
+    }
+  }, "");
+});
+
+const timeSentFormatted = computed(() => {
+  if (props.message?.timestamps?.created_at) {
+    return formatDateTime(props.message?.timestamps?.created_at);
+  }
+  return "";
+});
 </script>
