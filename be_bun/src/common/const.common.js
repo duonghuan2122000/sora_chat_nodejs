@@ -117,6 +117,8 @@ export const AppUrlPath = {
 export const SocketEventName = {
   CONNECTION: "connection",
 
+  CLIENT_CONNECTED: "client:connected",
+
   CHAT_MESSAGE_DIRECT: "chat:message:direct",
 
   CHAT_MESSAGE: "chat:message",

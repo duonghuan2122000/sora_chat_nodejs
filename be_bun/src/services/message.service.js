@@ -16,6 +16,9 @@ class MessageService {
     };
 
     message = await MessageModel.insertOne(message);
+
+    message.id = message._id;
+    delete message._id;
     return message;
   }
 

@@ -25,6 +25,19 @@ class ConversationApi extends BaseApi {
     });
     return result;
   }
+
+  /**
+   * Lấy thông tin cuộc trò chuyện
+   * @author dbhuan 17.01.2026
+   */
+  async getConversationAsync(id) {
+    let result = await this.requestAsync(beBaseRequest, {
+      url: `/conversations/${id}`,
+      method: HttpRequestMethod.GET,
+    });
+
+    return result;
+  }
 }
 
 export const conversationApi = new ConversationApi();

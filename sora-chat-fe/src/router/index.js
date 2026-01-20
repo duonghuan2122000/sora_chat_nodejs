@@ -7,7 +7,7 @@ const router = createRouter({
   routes: [
     {
       path: "/login",
-      name: "login",
+      name: RouterName.Login,
       component: () => import("@/views/LoginView.vue"),
       meta: {
         anonymous: true,
@@ -15,13 +15,19 @@ const router = createRouter({
     },
     {
       path: "/",
-      name: "home",
-      component: () => import("@/views/HomeView.vue"),
-    },
-    {
-      path: "/conversations/:id",
-      name: "conversation",
-      component: () => import("@/views/conversations/ConversationView.vue"),
+      component: () => import("@/layouts/MainLayout.vue"),
+      children: [
+        {
+          path: "/",
+          name: RouterName.Home,
+          component: () => import("@/views/HomeView.vue"),
+        },
+        {
+          path: "/conversations/:id",
+          name: RouterName.Conversation,
+          component: () => import("@/views/conversations/ConversationView.vue"),
+        },
+      ],
     },
   ],
 });

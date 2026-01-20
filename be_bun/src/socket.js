@@ -14,12 +14,16 @@ import { MessageBlockType } from "#src/data/entities/message.entity.js";
 import cookie from "cookie";
 
 export const handleSocket = async (io) => {
-  io.use(async (req, res, next) => {
+  let chatIoNamespace = io.of("/chat");
+
+  chatIoNamespace.use(async (socket, next) => {
     let token;
+    let req = socket.request;
     if (req.headers.cookie) {
       const cookies = cookie.parse(req.headers.cookie);
       token = cookies["x_sora_access_token"];
     }
+
     if (!token) {
       token = req._query.token;
     }
@@ -33,8 +37,6 @@ export const handleSocket = async (io) => {
     next();
   });
 
-  let chatIoNamespace = io.of("/chat");
-
   // Khi người dùng kết nối socket
   chatIoNamespace.on(SocketEventName.CONNECTION, async (socket) => {
     let curUserId = socket.request.userId;
@@ -42,17 +44,24 @@ export const handleSocket = async (io) => {
     // Thực hiện join room mặc định của user đó
     socket.join(await getUserRoom(curUserId));
 
+    chatIoNamespace
+      .to(await getUserRoom(curUserId))
+      .emit(
+        SocketEventName.CLIENT_CONNECTED,
+        ResponseUtil.success("connected"),
+      );
+
     socket.on(SocketEventName.CHAT_MESSAGE, async (data) => {
       let conversation = await conversationService.getConversation(
-        data.conversation_id
+        data.conversation_id,
       );
       if (!conversation) {
         socket.emit(
           SocketEventName.CHAT_MESSAGE,
           ResponseUtil.error(
             ChatMessageErrorInfo.Code.CONVERSATION_NOT_FOUND,
-            ChatMessageErrorInfo.Message.CONVERSATION_NOT_FOUND
-          )
+            ChatMessageErrorInfo.Message.CONVERSATION_NOT_FOUND,
+          ),
         );
         return;
       }
@@ -79,6 +88,7 @@ export const handleSocket = async (io) => {
         }, "");
 
       let message = await messageService.createMessage(createMessagePayload);
+
       // lấy toàn bộ người dùng trong cuộc trò chuyện
       let usersInConversation = conversation.members.map((m) => m.user_id);
 
@@ -97,7 +107,7 @@ export const handleSocket = async (io) => {
     // Sự kiện join cuộc trò chuyện
     socket.on(SocketEventName.CONVERSATION_JOIN, async (data) => {
       let conversation = await conversationService.getConversation(
-        data.conversation_id
+        data.conversation_id,
       );
       if (!conversation) {
         return;
@@ -108,7 +118,7 @@ export const handleSocket = async (io) => {
     // sự kiện leave cuộc trò chuyện
     socket.on(SocketEventName.CONVERSATION_LEAVE, async (data) => {
       let conversation = await conversationService.getConversation(
-        data.conversation_id
+        data.conversation_id,
       );
       if (!conversation) {
         return;

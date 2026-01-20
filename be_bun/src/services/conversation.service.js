@@ -2,6 +2,7 @@ import {
   ConversationModel,
   ConversationType,
 } from "#src/data/entities/conversation.entity.js";
+import { UserModel } from "#src/data/entities/user.entity";
 import { getCurrentTime, getNewUUID } from "#src/utils/common.util.js";
 
 class ConversationService {
@@ -46,7 +47,27 @@ class ConversationService {
    * Lấy thông tin conversation
    */
   async getConversation(id) {
-    return await ConversationModel.findOne({ _id: id }).lean();
+    let conversation = await ConversationModel.findOne({ _id: id }).lean();
+    if (
+      conversation &&
+      conversation.type === ConversationType.DIRECT &&
+      conversation.members?.length > 0
+    ) {
+      let userIds = conversation.members
+        .map((m) => m.user_id)
+        .filter((userId) => userId);
+      let users = await UserModel.find({ _id: { $in: userIds } })
+        .select({ username: 1, first_name: 1, last_name: 1 })
+        .lean();
+      conversation.members = conversation.members.map((m) => {
+        let user = users?.find((u) => u._id === m.user_id) ?? {};
+        if (user?._id) {
+          delete user._id;
+        }
+        return { ...m, ...user };
+      });
+    }
+    return conversation;
   }
 
   /**
@@ -70,6 +91,34 @@ class ConversationService {
       .skip(skip)
       .limit(limit)
       .lean();
+
+    // Lấy danh sách user id của người dùng của các cuộc trò chuyện trực tiếp direct
+    let userIdsInDirect = result
+      .filter((c) => c.type === ConversationType.DIRECT)
+      .flatMap((c) =>
+        c.members.map((m) => m.user_id).filter((userId) => userId)
+      );
+
+    let users = await UserModel.find({
+      _id: { $in: userIdsInDirect },
+    })
+      .select({ username: 1, first_name: 1, last_name: 1 })
+      .lean();
+
+    result = result.map((c) => {
+      if (c.type !== ConversationType.DIRECT) {
+        return c;
+      }
+      c.members = c.members.map((m) => {
+        let user = users?.find((u) => u._id === m.user_id) ?? {};
+        if (user?._id) {
+          delete user._id;
+        }
+        return { ...m, ...user };
+      });
+      return c;
+    });
+
     return result;
   }
 }

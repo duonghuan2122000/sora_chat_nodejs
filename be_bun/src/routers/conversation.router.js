@@ -9,6 +9,7 @@ import { validator } from "hono/validator";
 import { conversationService } from "#src/services/conversation.service";
 import { authMiddleware } from "#src/middlewares/auth.middleware";
 import { ResponseUtil } from "#src/utils/request.util";
+import { messageService } from "#src/services/message.service";
 
 const app = new Hono();
 
@@ -101,7 +102,13 @@ app.post(
     let user = c.get(CurrentUserKey);
     let result = await conversationService.getLatestConversations({
       ...body,
-      user_id: user.id,
+      user_id: user.sub,
+    });
+
+    result = result.map((c) => {
+      c.id = c._id;
+      delete c._id;
+      return c;
     });
     return c.json(ResponseUtil.success(result));
   }

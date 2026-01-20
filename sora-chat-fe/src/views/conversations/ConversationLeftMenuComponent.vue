@@ -14,9 +14,12 @@
       <div class="flex-1 overflow-y-auto px-2 py-2">
         <ConversationItemComponent
           v-for="(conversation, index) in conversationStore.conversations"
+          :key="conversation.id"
           :active="index == 1"
           :online="index == 1"
           :unReadMessage="index == 1 ? 10 : 0"
+          :currentUser="authStore.user"
+          :conversation="conversation"
         />
       </div>
     </div>
@@ -29,8 +32,11 @@ import CreateGroupComponent from "@/views/conversations/CreateGroupComponent.vue
 import ConversationItemComponent from "@/views/conversations/ConversationItemComponent.vue";
 import { onMounted, ref } from "vue";
 import { useConversationStore } from "@/stores/conversation";
+import { useAuthStore } from "@/stores/auth";
 
 const keySearch = ref("");
+
+let authStore = useAuthStore();
 
 const conversationStore = useConversationStore();
 
