@@ -6,7 +6,7 @@
   <div class="flex-1 py-4 px-4">
     <div class="flex flex-col h-[100%] bg-white rounded-[12px]">
       <ConversationHeaderComponent :conversation="props.conversation" />
-      <div class="flex-1 overflow-y-auto">
+      <div class="flex-1 overflow-y-auto" ref="refMessages">
         <div v-if="false" class="h-[100%] flex flex-col justify-center items-center">
           <div>Chưa có tin nhắn. Hãy bắt đầu ngay với "Xin chào"</div>
         </div>
@@ -15,14 +15,14 @@
             <div v-if="false" v-loading="true" class="h-[28px] w-[28px]"></div>
           </div>
           <MessageComponent
-            v-for="message in props.messages"
+            v-for="message in props.messages.slice().reverse()"
             :message="message"
             :key="message.id"
           />
         </div>
       </div>
       <div class="flex-0">
-        <MessageInputComponent />
+        <MessageInputComponent :conversation="props.conversation" />
       </div>
     </div>
   </div>
@@ -33,6 +33,7 @@ import MessageComponent from "@/views/conversations/MessageComponent.vue";
 import MessageInputComponent from "@/views/conversations/MessageInputComponent.vue";
 
 import ConversationHeaderComponent from "@/views/conversations/ConversationHeaderComponent.vue";
+import { nextTick, onMounted, ref } from "vue";
 
 const props = defineProps({
   /**
@@ -53,4 +54,19 @@ const props = defineProps({
     default: () => [],
   },
 });
+
+const refMessages = ref(null);
+
+onMounted(() => {
+  handleScrollToBottom();
+});
+
+const handleScrollToBottom = async () => {
+  await nextTick();
+  setTimeout(() => {
+    refMessages.value.scrollTop = refMessages.value.scrollHeight;
+  }, 250);
+};
+
+defineExpose({ handleScrollToBottom });
 </script>

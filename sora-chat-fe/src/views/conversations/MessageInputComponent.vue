@@ -20,8 +20,10 @@
         @keydown.enter.exact.prevent="send"
         @keydown.enter.shift.exact
       />
-      <div class="mt-1.5 cursor-pointer" title="Gửi">
-        <SendHorizonal :size="20" />
+      <div class="mt-1.5 cursor-pointer">
+        <ElTooltip content="Gửi" placement="top-end">
+          <SendHorizonal :size="20" />
+        </ElTooltip>
       </div>
     </div>
   </div>
@@ -30,8 +32,24 @@
 <script setup>
 import { SendHorizonal } from "lucide-vue-next";
 // Components
-import { ElInput } from "element-plus";
+import { ElInput, ElTooltip } from "element-plus";
 import { ref } from "vue";
+import { useSocketStore } from "@/stores/socket";
+import { useAuthStore } from "@/stores/auth";
+
+const props = defineProps({
+  /**
+   * Thông tin cuộc trò chuyện
+   * @author dbhuan 18.01.2026
+   */
+  conversation: {
+    type: Object,
+    default: null,
+  },
+});
+
+const socketStore = useSocketStore();
+const authStore = useAuthStore();
 
 // message value
 const messageVal = ref("");
@@ -40,7 +58,46 @@ const messageVal = ref("");
  * Hàm gửi tin nhắn
  */
 const send = async () => {
-  alert("gửi");
+  // xử lý message trước khi gửi lên server
+  let messageRaw = messageVal.value;
+  // Phân tách thành các blocks
+  let blocks = messageRaw
+    .split("\n")
+    .map((b) => b.trim())
+    .filter((b) => b)
+    .map((b) => {
+      return {
+        type: "text",
+        value: b,
+      };
+    });
+
+  // giữa các block cần thêm block xuống dòng
+  let newBlocks = [];
+  if (blocks.length > 1) {
+    for (let i = 0; i <= blocks.length - 2; i++) {
+      newBlocks.push(blocks[i]);
+      newBlocks.push({ type: "newline" });
+    }
+    newBlocks.push(blocks[blocks.length - 1]);
+  } else {
+    newBlocks = [...blocks];
+  }
+
+  console.log(newBlocks);
+  await socketStore.sendMessage({
+    conversation_id: props.conversation?.id,
+    conversation_type: props.conversation?.type,
+    message: {
+      type: "text",
+      version: 1,
+      blocks: newBlocks,
+      plain_text: messageRaw.replace("\n", " "),
+    },
+  });
+
+  // Thực hiện clear message input
+  messageVal.value = "";
 };
 </script>
 

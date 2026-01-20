@@ -41,8 +41,6 @@ export const handleSocket = async (io) => {
   chatIoNamespace.on(SocketEventName.CONNECTION, async (socket) => {
     let curUserId = socket.request.userId;
 
-    console.log(curUserId);
-
     // Thực hiện join room mặc định của user đó
     socket.join(await getUserRoom(curUserId));
 
@@ -50,20 +48,20 @@ export const handleSocket = async (io) => {
       .to(await getUserRoom(curUserId))
       .emit(
         SocketEventName.CLIENT_CONNECTED,
-        ResponseUtil.success("connected")
+        ResponseUtil.success("connected"),
       );
 
     socket.on(SocketEventName.CHAT_MESSAGE, async (data) => {
       let conversation = await conversationService.getConversation(
-        data.conversation_id
+        data.conversation_id,
       );
       if (!conversation) {
         socket.emit(
           SocketEventName.CHAT_MESSAGE,
           ResponseUtil.error(
             ChatMessageErrorInfo.Code.CONVERSATION_NOT_FOUND,
-            ChatMessageErrorInfo.Message.CONVERSATION_NOT_FOUND
-          )
+            ChatMessageErrorInfo.Message.CONVERSATION_NOT_FOUND,
+          ),
         );
         return;
       }
@@ -90,6 +88,7 @@ export const handleSocket = async (io) => {
         }, "");
 
       let message = await messageService.createMessage(createMessagePayload);
+
       // lấy toàn bộ người dùng trong cuộc trò chuyện
       let usersInConversation = conversation.members.map((m) => m.user_id);
 
@@ -108,7 +107,7 @@ export const handleSocket = async (io) => {
     // Sự kiện join cuộc trò chuyện
     socket.on(SocketEventName.CONVERSATION_JOIN, async (data) => {
       let conversation = await conversationService.getConversation(
-        data.conversation_id
+        data.conversation_id,
       );
       if (!conversation) {
         return;
@@ -119,7 +118,7 @@ export const handleSocket = async (io) => {
     // sự kiện leave cuộc trò chuyện
     socket.on(SocketEventName.CONVERSATION_LEAVE, async (data) => {
       let conversation = await conversationService.getConversation(
-        data.conversation_id
+        data.conversation_id,
       );
       if (!conversation) {
         return;

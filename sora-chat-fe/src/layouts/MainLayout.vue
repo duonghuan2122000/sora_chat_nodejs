@@ -7,29 +7,12 @@
 </template>
 
 <script setup>
-import { io } from "socket.io-client";
+import { useSocketStore } from "@/stores/socket";
 import { onMounted } from "vue";
 
+const socketStore = useSocketStore();
+
 onMounted(() => {
-  handleConnectSocket();
+  socketStore.initSocket();
 });
-
-/**
- * Xử lý kết nối socket server
- */
-const handleConnectSocket = () => {
-  const socket = io("/chat", {
-    path: "/api/v1/socket.io/",
-    transports: ["websocket"], // nên bật
-    withCredentials: true,
-  });
-
-  socket.on("connect", () => {
-    console.log("socket connected");
-  });
-
-  socket.on("client:connected", (data) => {
-    console.log(data);
-  });
-};
 </script>

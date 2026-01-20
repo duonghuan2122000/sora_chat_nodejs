@@ -25,9 +25,11 @@
           :class="{ 'bg-green-100': isMessageCurrentUser, 'bg-gray-100': !isMessageCurrentUser }"
         >
           <div class="relative">
-            <ElTooltip :content="timeSentFormatted" effect="dark" placement="top-start">
-              {{ messageFormated }}
-            </ElTooltip>
+            <div class="whitespace-pre-line">
+              <ElTooltip :content="timeSentFormatted" effect="dark" placement="top-start">
+                {{ messageFormated }}
+              </ElTooltip>
+            </div>
             <div class="absolute bottom-[-20px] right-[-5px] flex flex-row">
               <div
                 v-if="false"
@@ -74,6 +76,9 @@ const messageFormated = computed(() => {
     switch (block?.type) {
       case "text":
         return msg + block?.value ?? "";
+
+      case "newline":
+        return msg + "\n";
 
       default:
         return msg;
