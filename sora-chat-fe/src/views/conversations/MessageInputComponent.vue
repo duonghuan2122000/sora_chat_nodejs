@@ -3,26 +3,58 @@
     @author dbhuan 16.01.2026
 -->
 <template>
-  <div class="SoraMessageInput">
-    <div v-if="false" class="p-4 pb-0 mb-4 flex flex-row justify-between border-t border-gray-200">
-      <div class="flex flex-col gap-1">
-        <div class="font-semibold">Đang trả lời Dương Huân</div>
-        <div>Xin chào</div>
+  <div class="SoraMessageInput flex flex-col">
+    <!-- Toolbar -->
+    <div class="px-4 py-2 border-b border-gray-100 flex flex-row gap-4 items-center">
+      <div
+        @click="execAction('bold')"
+        class="cursor-pointer hover:bg-gray-100 p-1 rounded transition-colors"
+        :class="{ 'text-blue-500 bg-blue-50': isBold }"
+      >
+        <ElTooltip content="In đậm (Ctrl + B)" placement="top">
+          <Bold :size="18" />
+        </ElTooltip>
       </div>
-      <div class="cursor-pointer">&#10006;</div>
+      <div
+        @click="execAction('italic')"
+        class="cursor-pointer hover:bg-gray-100 p-1 rounded transition-colors"
+        :class="{ 'text-blue-500 bg-blue-50': isItalic }"
+      >
+        <ElTooltip content="In nghiêng (Ctrl + I)" placement="top">
+          <Italic :size="18" />
+        </ElTooltip>
+      </div>
+      <div
+        @click="execAction('underline')"
+        class="cursor-pointer hover:bg-gray-100 p-1 rounded transition-colors"
+        :class="{ 'text-blue-500 bg-blue-50': isUnderline }"
+      >
+        <ElTooltip content="Gạch chân (Ctrl + U)" placement="top">
+          <UnderlineIcon :size="18" />
+        </ElTooltip>
+      </div>
     </div>
-    <div class="p-4 flex flex-row gap-2">
-      <ElInput
-        placeholder="Nhập tin nhắn"
-        v-model="messageVal"
-        type="textarea"
-        autosize
-        @keydown.enter.exact.prevent="send"
-        @keydown.enter.shift.exact
-      />
-      <div class="mt-1.5 cursor-pointer">
+
+    <!-- Input Area -->
+    <div class="p-4 flex flex-row gap-2 items-end">
+      <div
+        ref="editorRef"
+        contenteditable="true"
+        class="flex-1 min-h-[40px] max-h-[200px] overflow-y-auto p-2 border border-gray-200 rounded-[8px] outline-none focus:border-blue-400 transition-colors whitespace-pre-wrap"
+        placeholder="Nhập tin nhắn..."
+        @keydown="handleKeyDown"
+        @input="updateState"
+        @mouseup="updateState"
+      ></div>
+
+      <div class="mb-1 cursor-pointer">
         <ElTooltip content="Gửi" placement="top-end">
-          <SendHorizonal :size="20" />
+          <div
+            @click="send"
+            class="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
+          >
+            <SendHorizonal :size="20" />
+          </div>
         </ElTooltip>
       </div>
     </div>
@@ -30,10 +62,10 @@
 </template>
 
 <script setup>
-import { SendHorizonal } from "lucide-vue-next";
+import { SendHorizonal, Bold, Italic, Underline as UnderlineIcon } from "lucide-vue-next";
 // Components
-import { ElInput, ElTooltip } from "element-plus";
-import { ref } from "vue";
+import { ElTooltip } from "element-plus";
+import { ref, onMounted } from "vue";
 import { useSocketStore } from "@/stores/socket";
 import { useAuthStore } from "@/stores/auth";
 
@@ -51,54 +83,135 @@ const props = defineProps({
 const socketStore = useSocketStore();
 const authStore = useAuthStore();
 
-// message value
-const messageVal = ref("");
+const editorRef = ref(null);
+const isBold = ref(false);
+const isItalic = ref(false);
+const isUnderline = ref(false);
+
+/**
+ * Cập nhật trạng thái toolbar
+ */
+const updateState = () => {
+  isBold.value = document.queryCommandState("bold");
+  isItalic.value = document.queryCommandState("italic");
+  isUnderline.value = document.queryCommandState("underline");
+};
+
+/**
+ * Thực hiện action format
+ */
+const execAction = (command) => {
+  document.execCommand(command, false, null);
+  editorRef.value?.focus();
+  updateState();
+};
+
+/**
+ * Xử lý phím tắt
+ */
+const handleKeyDown = (e) => {
+  if (e.ctrlKey || e.metaKey) {
+    switch (e.key.toLowerCase()) {
+      case "b":
+        e.preventDefault();
+        execAction("bold");
+        break;
+      case "i":
+        e.preventDefault();
+        execAction("italic");
+        break;
+      case "u":
+        e.preventDefault();
+        execAction("underline");
+        break;
+      case "enter":
+        e.preventDefault();
+        document.execCommand("insertHTML", false, "<br><br>");
+        // Fix for contenteditable newline at the end
+        break;
+    }
+  } else if (e.key === "Enter") {
+    e.preventDefault();
+    send();
+  }
+};
+
+/**
+ * Parse contenteditable to blocks
+ */
+const parseToBlocks = (element) => {
+  const blocks = [];
+
+  const traverse = (node) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      if (node.textContent) {
+        let parent = node.parentNode;
+        let type = "text";
+
+        // Simple check for parent tags - limited by execCommand
+        while (parent && parent !== element) {
+          const tag = parent.tagName.toLowerCase();
+          if (tag === "b" || tag === "strong") type = "bold";
+          else if (tag === "i" || tag === "em") type = "italic";
+          else if (tag === "u") type = "underline";
+          parent = parent.parentNode;
+        }
+
+        blocks.push({ type, value: node.textContent });
+      }
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      if (node.tagName === "BR") {
+        blocks.push({ type: "newline" });
+      } else {
+        for (let child of node.childNodes) {
+          traverse(child);
+        }
+        // Handle div-wrapped lines which execCommand sometimes creates
+        if (node.tagName === "DIV" && node.nextSibling) {
+          blocks.push({ type: "newline" });
+        }
+      }
+    }
+  };
+
+  for (let node of element.childNodes) {
+    traverse(node);
+  }
+
+  return blocks;
+};
 
 /**
  * Hàm gửi tin nhắn
  */
 const send = async () => {
-  // xử lý message trước khi gửi lên server
-  let messageRaw = messageVal.value;
-  // Phân tách thành các blocks
-  let blocks = messageRaw
-    .split("\n")
-    .map((b) => b.trim())
-    .filter((b) => b)
-    .map((b) => {
-      return {
-        type: "text",
-        value: b,
-      };
-    });
+  if (!editorRef.value) return;
 
-  // giữa các block cần thêm block xuống dòng
-  let newBlocks = [];
-  if (blocks.length > 1) {
-    for (let i = 0; i <= blocks.length - 2; i++) {
-      newBlocks.push(blocks[i]);
-      newBlocks.push({ type: "newline" });
-    }
-    newBlocks.push(blocks[blocks.length - 1]);
-  } else {
-    newBlocks = [...blocks];
-  }
+  const blocks = parseToBlocks(editorRef.value);
+  if (blocks.length === 0) return;
 
-  console.log(newBlocks);
+  const plainText = editorRef.value.innerText;
+
   await socketStore.sendMessage({
     conversation_id: props.conversation?.id,
     conversation_type: props.conversation?.type,
     message: {
       type: "text",
       version: 1,
-      blocks: newBlocks,
-      plain_text: messageRaw.replace("\n", " "),
+      blocks: blocks,
+      plain_text: plainText,
     },
   });
 
   // Thực hiện clear message input
-  messageVal.value = "";
+  editorRef.value.innerHTML = "";
+  updateState();
+  editorRef.value.focus();
 };
+
+onMounted(() => {
+  editorRef.value?.focus();
+});
 </script>
 
 <style>

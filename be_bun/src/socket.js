@@ -80,6 +80,9 @@ export const handleSocket = async (io) => {
         createMessagePayload.message.blocks.reduce((t, b) => {
           switch (b.type) {
             case MessageBlockType.TEXT:
+            case MessageBlockType.BOLD:
+            case MessageBlockType.ITALIC:
+            case MessageBlockType.UNDERLINE:
               return t + b.value;
 
             default:

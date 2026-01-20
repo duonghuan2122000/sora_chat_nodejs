@@ -27,7 +27,15 @@
           <div class="relative">
             <div class="whitespace-pre-line">
               <ElTooltip :content="timeSentFormatted" effect="dark" placement="top-start">
-                {{ messageFormated }}
+                <span>
+                  <template v-for="(block, index) in props.message?.message?.blocks" :key="index">
+                    <span v-if="block.type === 'text'">{{ block.value }}</span>
+                    <b v-else-if="block.type === 'bold'">{{ block.value }}</b>
+                    <i v-else-if="block.type === 'italic'">{{ block.value }}</i>
+                    <u v-else-if="block.type === 'underline'">{{ block.value }}</u>
+                    <br v-else-if="block.type === 'newline'" />
+                  </template>
+                </span>
               </ElTooltip>
             </div>
             <div class="absolute bottom-[-20px] right-[-5px] flex flex-row">
@@ -68,22 +76,6 @@ let authStore = useAuthStore();
 
 const isMessageCurrentUser = computed(() => {
   return props.message?.sender?.user_id === authStore.user?.id;
-});
-
-const messageFormated = computed(() => {
-  let blocks = props.message?.message?.blocks ?? [];
-  return blocks.reduce((msg, block) => {
-    switch (block?.type) {
-      case "text":
-        return msg + block?.value ?? "";
-
-      case "newline":
-        return msg + "\n";
-
-      default:
-        return msg;
-    }
-  }, "");
 });
 
 const timeSentFormatted = computed(() => {
