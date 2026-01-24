@@ -24,6 +24,19 @@
           class="border border-gray-200 rounded-[8px] px-3 py-2 inline-block max-w-[400px] relative"
           :class="{ 'bg-green-100': isMessageCurrentUser, 'bg-gray-100': !isMessageCurrentUser }"
         >
+          <!-- Replied message snippet -->
+          <div
+            v-if="repliedMessage"
+            class="mb-2 py-1 px-2 bg-black bg-opacity-5 border-l-[3px] border-blue-500 rounded-r-[4px] text-[12px] cursor-pointer hover:bg-opacity-10 transition-all border-opacity-50"
+          >
+            <div class="font-bold text-blue-600 truncate">
+              {{ isRepliedMessageCurrentUser ? "Bạn" : "Dương Huân" }}
+            </div>
+            <div class="text-gray-600 truncate max-w-[200px]">
+              {{ repliedMessageContentSnippet }}
+            </div>
+          </div>
+
           <div class="relative">
             <div class="whitespace-pre-line">
               <ElTooltip :content="timeSentFormatted" effect="dark" placement="top-start">
@@ -60,10 +73,12 @@
             </div>
           </div>
         </div>
-        <!-- Reaction trigger button -->
+        <!-- Action buttons (Reaction/Reply) -->
         <div
           class="opacity-0 group-hover:opacity-100 transition-opacity flex flex-row items-center"
+          :class="{ 'flex-row-reverse': isMessageCurrentUser }"
         >
+          <!-- Reaction trigger button -->
           <ElPopover
             v-model:visible="popoverVisible"
             placement="top"
@@ -91,6 +106,15 @@
               </div>
             </div>
           </ElPopover>
+
+          <!-- Reply button -->
+          <div
+            class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-200 cursor-pointer text-gray-500"
+            title="Trả lời"
+            @click="handleReply"
+          >
+            <Reply :size="18" />
+          </div>
         </div>
       </div>
     </div>
@@ -110,7 +134,7 @@ import { computed, ref } from "vue";
 
 // Components
 import { ElTooltip, ElPopover } from "element-plus";
-import { Smile } from "lucide-vue-next";
+import { Smile, Reply } from "lucide-vue-next";
 import ReactionDetailsDialog from "./ReactionDetailsDialog.vue";
 
 const props = defineProps({
@@ -121,6 +145,13 @@ const props = defineProps({
   message: {
     type: Object,
     default: null,
+  },
+  /**
+   * Danh sách tất cả message để tìm tin nhắn được trả lời
+   */
+  allMessages: {
+    type: Array,
+    default: () => [],
   },
 });
 
@@ -133,6 +164,22 @@ const popoverVisible = ref(false);
 
 const isMessageCurrentUser = computed(() => {
   return props.message?.sender?.user_id === authStore.user?.id;
+});
+
+const repliedMessage = computed(() => {
+  if (!props.message?.reply?.message_id) return null;
+  return props.allMessages.find((m) => m.id === props.message.reply.message_id);
+});
+
+const isRepliedMessageCurrentUser = computed(() => {
+  return repliedMessage.value?.sender?.user_id === authStore.user?.id;
+});
+
+const repliedMessageContentSnippet = computed(() => {
+  if (!repliedMessage.value) return "";
+  const plainText = repliedMessage.value.message?.plain_text || "";
+  const firstLine = plainText.split("\n")[0];
+  return plainText.includes("\n") ? firstLine + "..." : firstLine;
 });
 
 const timeSentFormatted = computed(() => {
@@ -172,6 +219,14 @@ const selectedEmoji = ref("");
 const handleShowReactionDetails = (emoji) => {
   selectedEmoji.value = emoji;
   showReactionDetails.value = true;
+};
+
+/**
+ * Xử lý click nút trả lời
+ * @author dbhuan 24.01.2026
+ */
+const handleReply = () => {
+  socketStore.setReplyingTo(props.message);
 };
 </script>
 
