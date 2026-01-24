@@ -112,6 +112,10 @@ export const AppUrlPath = {
     GET_CONVERSATION: "/:conversation_id",
     LATEST_CONVERSATIONS: "/latest",
   },
+  Messages: {
+    BASE: "/messages",
+    REACTIONS: "/:message_id/reactions",
+  },
 };
 
 export const SocketEventName = {

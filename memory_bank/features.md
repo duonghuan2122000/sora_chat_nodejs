@@ -11,6 +11,7 @@
   - [x] Message persistence in MongoDB.
   - [x] Conversation rooms (joining/leaving).
   - [x] Emoticons and Reactions (Unicode emoji, real-time).
+  - [x] Message Reaction Details (View list of users, avatars, pagination).
 - **Conversation Management**
   - [x] Fetching conversation lists.
   - [x] Creating/Getting conversations.

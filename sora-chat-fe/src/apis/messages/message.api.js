@@ -22,6 +22,25 @@ class MessageApi extends BaseApi {
 
     return result;
   }
+
+  /**
+   * Lấy chi tiết reaction của tin nhắn
+   * @author dbhuan 24.01.2026
+   */
+  async getMessageReactionsAsync(payload) {
+    const { messageId, emoji, skip = 0, limit = 10 } = payload;
+    let result = await this.requestAsync(beBaseRequest, {
+      url: `messages/${messageId}/reactions`,
+      method: HttpRequestMethod.POST,
+      data: {
+        emoji,
+        skip,
+        limit,
+      },
+    });
+
+    return result;
+  }
 }
 
 export const messageApi = new MessageApi();

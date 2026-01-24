@@ -1,4 +1,5 @@
 import { MessageModel } from "#src/data/entities/message.entity.js";
+import { UserModel } from "#src/data/entities/user.entity";
 import { getCurrentTime, getNewUUID } from "#src/utils/common.util.js";
 
 class MessageService {
@@ -88,6 +89,51 @@ class MessageService {
     result.id = result._id;
     delete result._id;
     return result;
+  }
+
+  /**
+   * Lấy chi tiết reaction của tin nhắn
+   * @author dbhuan 24.01.2026
+   */
+  async getMessageReactions(payload) {
+    const { message_id, emoji, skip = 0, limit = 10 } = payload;
+    let message = await MessageModel.findOne({ _id: message_id }).lean();
+    if (!message) {
+      return null;
+    }
+
+    const totalReactions =
+      message.reactions?.reduce((sum, r) => sum + r.count, 0) || 0;
+    const summaries =
+      message.reactions?.map((r) => ({
+        emoji: r.emoji,
+        count: r.count,
+      })) || [];
+
+    let users = [];
+    let selectedReaction = (message.reactions || []).find(
+      (r) => r.emoji === emoji,
+    );
+    if (selectedReaction) {
+      const userIds = selectedReaction.user_ids.slice(skip, skip + limit);
+      users = await UserModel.find({ _id: { $in: userIds } })
+        .select("first_name last_name avatar")
+        .lean();
+
+      // Map to include id instead of _id for consistency
+      users = users.map((u) => ({
+        id: u._id,
+        first_name: u.first_name,
+        last_name: u.last_name,
+        avatar: u.avatar,
+      }));
+    }
+
+    return {
+      total_count: totalReactions,
+      summaries: summaries,
+      users: users,
+    };
   }
 }
 

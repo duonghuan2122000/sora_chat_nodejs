@@ -52,8 +52,7 @@
                 :key="reaction.emoji"
                 class="flex items-center gap-0.5 px-1 cursor-pointer hover:bg-gray-50 rounded-full text-[12px]"
                 :class="{ 'bg-blue-50': hasUserReacted(reaction) }"
-                @click="handleToggleReaction(reaction.emoji)"
-                :title="reaction.user_ids.join(', ')"
+                @click="handleShowReactionDetails(reaction.emoji)"
               >
                 <span>{{ reaction.emoji }}</span>
                 <span class="text-gray-500 font-medium">{{ reaction.count }}</span>
@@ -88,6 +87,11 @@
         </div>
       </div>
     </div>
+    <ReactionDetailsDialog
+      v-model="showReactionDetails"
+      :message-id="props.message?.id"
+      :initial-emoji="selectedEmoji"
+    />
   </div>
 </template>
 
@@ -95,11 +99,12 @@
 import { formatDateTime } from "@/commons/fn.common";
 import { useAuthStore } from "@/stores/auth";
 import { useSocketStore } from "@/stores/socket";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 // Components
 import { ElTooltip, ElPopover } from "element-plus";
 import { Smile } from "lucide-vue-next";
+import ReactionDetailsDialog from "./ReactionDetailsDialog.vue";
 
 const props = defineProps({
   /**
@@ -148,10 +153,14 @@ const handleSelectEmoji = (emoji) => {
 };
 
 /**
- * Xử lý khi click vào reaction hiện có (toggle)
+ * Xử lý khi click vào reaction hiện có - Hiển thị popup chi tiết
  * @author dbhuan 24.01.2026
  */
-const handleToggleReaction = (emoji) => {
-  handleSelectEmoji(emoji);
+const showReactionDetails = ref(false);
+const selectedEmoji = ref("");
+
+const handleShowReactionDetails = (emoji) => {
+  selectedEmoji.value = emoji;
+  showReactionDetails.value = true;
 };
 </script>
