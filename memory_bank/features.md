@@ -11,6 +11,8 @@
   - [x] Message persistence in MongoDB.
   - [x] Conversation rooms (joining/leaving).
   - [x] Emoticons and Reactions (Unicode emoji, real-time).
+    - [x] Improved UI: Reaction popup closes automatically after selection.
+    - [x] Improved UI: Emojis displayed in a single row with 8px spacing.
   - [x] Message Reaction Details (View list of users, avatars, pagination).
 - **Conversation Management**
   - [x] Fetching conversation lists.

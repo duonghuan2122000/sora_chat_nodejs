@@ -64,7 +64,14 @@
         <div
           class="opacity-0 group-hover:opacity-100 transition-opacity flex flex-row items-center"
         >
-          <ElPopover placement="top" :width="200" trigger="click" effect="light">
+          <ElPopover
+            v-model:visible="popoverVisible"
+            placement="top"
+            trigger="click"
+            effect="light"
+            width="auto"
+            popper-class="reaction-popover"
+          >
             <template #reference>
               <div
                 class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-200 cursor-pointer text-gray-500"
@@ -73,7 +80,7 @@
                 <Smile :size="18" />
               </div>
             </template>
-            <div class="flex flex-wrap gap-2 justify-center">
+            <div class="flex flex-row gap-2 justify-center">
               <div
                 v-for="emoji in emojiList"
                 :key="emoji"
@@ -122,6 +129,8 @@ let socketStore = useSocketStore();
 
 const emojiList = ["👍", "❤️", "😂", "😮", "😢", "🔥", "🙏", "👏"];
 
+const popoverVisible = ref(false);
+
 const isMessageCurrentUser = computed(() => {
   return props.message?.sender?.user_id === authStore.user?.id;
 });
@@ -150,6 +159,7 @@ const handleSelectEmoji = (emoji) => {
     message_id: props.message.id,
     emoji: emoji,
   });
+  popoverVisible.value = false;
 };
 
 /**
@@ -164,3 +174,10 @@ const handleShowReactionDetails = (emoji) => {
   showReactionDetails.value = true;
 };
 </script>
+
+<style scoped>
+:deep(.reaction-popover) {
+  padding: 8px !important;
+  min-width: unset !important;
+}
+</style>
