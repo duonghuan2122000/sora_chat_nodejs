@@ -10,6 +10,10 @@
   - [x] Real-time message delivery via Socket.io.
   - [x] Message persistence in MongoDB.
   - [x] Conversation rooms (joining/leaving).
+  - [x] Emoticons and Reactions (Unicode emoji, real-time).
+    - [x] Improved UI: Reaction popup closes automatically after selection.
+    - [x] Improved UI: Emojis displayed in a single row with 8px spacing.
+  - [x] Message Reaction Details (View list of users, avatars, pagination).
 - **Conversation Management**
   - [x] Fetching conversation lists.
   - [x] Creating/Getting conversations.
@@ -24,7 +28,6 @@
 - [ ] Message status (Sent, Delivered, Read).
 - [ ] User status (Online, Offline, Last seen).
 - [ ] Group chats (Currently seems focused on 1-to-1 but structure supports members).
-- [ ] Emoticons and Reactions.
 - [ ] Notifications (Browser/Push).
 - [ ] End-to-end encryption (Optional).
 - [ ] Search (Users, Conversations, Messages).

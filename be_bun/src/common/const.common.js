@@ -112,6 +112,10 @@ export const AppUrlPath = {
     GET_CONVERSATION: "/:conversation_id",
     LATEST_CONVERSATIONS: "/latest",
   },
+  Messages: {
+    BASE: "/messages",
+    REACTIONS: "/:message_id/reactions",
+  },
 };
 
 export const SocketEventName = {
@@ -122,6 +126,8 @@ export const SocketEventName = {
   CHAT_MESSAGE_DIRECT: "chat:message:direct",
 
   CHAT_MESSAGE: "chat:message",
+
+  CHAT_MESSAGE_REACTION: "chat:message:reaction",
 
   CONVERSATION_JOIN: "conversation:join",
 

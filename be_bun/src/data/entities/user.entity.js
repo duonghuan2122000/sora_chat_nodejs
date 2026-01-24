@@ -42,6 +42,14 @@ const userSchema = new Schema(
     first_name: String,
 
     /**
+     * Ảnh đại diện
+     */
+    avatar: {
+      type: String,
+      default: null,
+    },
+
+    /**
      * Thời gian tạo
      */
     created_date: {
@@ -59,7 +67,7 @@ const userSchema = new Schema(
   },
   {
     timestamps: false,
-  }
+  },
 );
 
 // Đánh index cho trường username
