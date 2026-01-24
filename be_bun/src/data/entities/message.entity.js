@@ -21,6 +21,16 @@ export const MessageBlockType = {
    * Text in đậm
    */
   BOLD: "bold",
+
+  /**
+   * Text in nghiêng
+   */
+  ITALIC: "italic",
+
+  /**
+   * Text gạch chân
+   */
+  UNDERLINE: "underline",
 };
 
 const messageSchema = new Schema(
@@ -215,7 +225,7 @@ const messageSchema = new Schema(
   },
   {
     timestamps: false,
-  }
+  },
 );
 
 messageSchema.index({
