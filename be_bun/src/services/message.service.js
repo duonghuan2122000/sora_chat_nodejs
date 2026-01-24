@@ -36,6 +36,43 @@ class MessageService {
       .limit(payload.limit)
       .lean();
 
+    if (messages.length > 0) {
+      // Lấy danh sách id của các tin nhắn được trả lời
+      const replyMessageIds = messages
+        .filter((m) => m.reply?.message_id)
+        .map((m) => m.reply.message_id);
+
+      if (replyMessageIds.length > 0) {
+        // Lấy thông tin các tin nhắn được trả lời
+        let replyMessages = await MessageModel.find({
+          _id: { $in: replyMessageIds },
+        }).lean();
+
+        // Map id
+        replyMessages = replyMessages.map((m) => {
+          m.id = m._id;
+          delete m._id;
+          return m;
+        });
+
+        // Gắn thông tin tin nhắn được trả lời vào message gốc
+        messages.forEach((m) => {
+          if (m.reply?.message_id) {
+            m.reply.message = replyMessages.find(
+              (rm) => rm.id === m.reply.message_id,
+            );
+          }
+        });
+      }
+
+      // Map id cho danh sách message chính
+      messages = messages.map((m) => {
+        m.id = m._id;
+        delete m._id;
+        return m;
+      });
+    }
+
     return messages;
   }
   /**

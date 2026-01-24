@@ -56,14 +56,6 @@ app.post(
       conversation_id: c.req.param("conversation_id"),
     });
 
-    if (result?.length > 0) {
-      result = result.map((message) => {
-        message.id = message._id;
-        delete message._id;
-        delete message.__v;
-        return message;
-      });
-    }
     return c.json(ResponseUtil.success(result));
   },
 );

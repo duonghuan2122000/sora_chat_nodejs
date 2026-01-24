@@ -15,6 +15,7 @@
     - [x] Improved UI: Emojis displayed in a single row with 8px spacing.
   - [x] Message Reaction Details (View list of users, avatars, pagination).
   - [x] Message Reply (Hover icon, preview snippet in input, display in history).
+    - [x] Improved: Backend populates replied message data, ensuring snippets display correctly even for messages outside the initial load batch.
 - **Conversation Management**
   - [x] Fetching conversation lists.
   - [x] Creating/Getting conversations.

@@ -168,6 +168,10 @@ const isMessageCurrentUser = computed(() => {
 
 const repliedMessage = computed(() => {
   if (!props.message?.reply?.message_id) return null;
+  // Prioritize using populated message from backend if available
+  if (props.message.reply.message) {
+    return props.message.reply.message;
+  }
   return props.allMessages.find((m) => m.id === props.message.reply.message_id);
 });
 
