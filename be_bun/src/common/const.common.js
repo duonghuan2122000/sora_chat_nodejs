@@ -123,6 +123,8 @@ export const SocketEventName = {
 
   CHAT_MESSAGE: "chat:message",
 
+  CHAT_MESSAGE_REACTION: "chat:message:reaction",
+
   CONVERSATION_JOIN: "conversation:join",
 
   CONVERSATION_LEAVE: "conversation:leave",

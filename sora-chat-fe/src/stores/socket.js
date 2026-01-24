@@ -44,5 +44,28 @@ export const useSocketStore = defineStore("socket", {
         await callback(payload);
       });
     },
+
+    /**
+     * Thực hiện gửi reaction
+     * @author dbhuan 24.01.2026
+     */
+    async sendReaction(payload) {
+      this.socket.emit("chat:message:reaction", payload);
+    },
+
+    /**
+     * Xử lý lắng nghe sự kiện có reaction mới
+     * @author dbhuan 24.01.2026
+     */
+    async onMessageReaction(callback = async () => {}) {
+      const _this = this;
+      if (!_this.socket) {
+        await _this.initSocket();
+      }
+
+      _this.socket.on("chat:message:reaction", async (payload) => {
+        await callback(payload);
+      });
+    },
   },
 });

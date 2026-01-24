@@ -107,6 +107,46 @@ export const handleSocket = async (io) => {
         .emit(SocketEventName.CHAT_MESSAGE, result);
     });
 
+    // Sự kiện reaction tin nhắn
+    socket.on(SocketEventName.CHAT_MESSAGE_REACTION, async (data) => {
+      let messageReactionPayload = {
+        message_id: data.message_id,
+        user_id: curUserId,
+        emoji: data.emoji,
+      };
+
+      let updatedMessage = await messageService.updateMessageReaction(
+        messageReactionPayload,
+      );
+
+      if (!updatedMessage) {
+        return;
+      }
+
+      let result = ResponseUtil.success(updatedMessage);
+
+      // Lấy cuộc trò chuyện để broadcast
+      let conversation = await conversationService.getConversation(
+        updatedMessage.conversation_id,
+      );
+
+      if (!conversation) {
+        return;
+      }
+
+      // Phát sự kiện cập nhật reaction cho tất cả người dùng trong cuộc trò chuyện
+      let usersInConversation = conversation.members.map((m) => m.user_id);
+      for (let userId of usersInConversation) {
+        chatIoNamespace
+          .to(await getUserRoom(userId))
+          .emit(SocketEventName.CHAT_MESSAGE_REACTION, result);
+      }
+
+      chatIoNamespace
+        .to(await getConversationRoom(conversation._id))
+        .emit(SocketEventName.CHAT_MESSAGE_REACTION, result);
+    });
+
     // Sự kiện join cuộc trò chuyện
     socket.on(SocketEventName.CONVERSATION_JOIN, async (data) => {
       let conversation = await conversationService.getConversation(

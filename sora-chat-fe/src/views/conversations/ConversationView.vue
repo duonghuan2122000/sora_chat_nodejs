@@ -39,6 +39,7 @@ const refConversationMessageBoxComponent = ref(null);
 onMounted(() => {
   getConversation();
   socketStore.onNewMessage(handleNewMessage);
+  socketStore.onMessageReaction(handleMessageReaction);
 });
 
 // Lấy thông tin cuộc trò chuyện
@@ -70,6 +71,16 @@ const handleNewMessage = async (payload) => {
     messages.value = [payload.data, ...messages.value];
     await nextTick();
     await refConversationMessageBoxComponent.value?.handleScrollToBottom();
+  }
+};
+
+const handleMessageReaction = async (payload) => {
+  if (payload?.success) {
+    let updatedMessage = payload.data;
+    let index = messages.value.findIndex((m) => m.id === updatedMessage.id);
+    if (index > -1) {
+      messages.value[index] = updatedMessage;
+    }
   }
 };
 </script>
