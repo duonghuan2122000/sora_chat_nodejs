@@ -17,6 +17,7 @@
           <MessageComponent
             v-for="message in props.messages.slice().reverse()"
             :message="message"
+            :all-messages="props.messages"
             :key="message.id"
           />
         </div>
@@ -50,7 +51,7 @@ const props = defineProps({
    * @author dbhuan 17.01.2026
    */
   messages: {
-    type: Object,
+    type: Array,
     default: () => [],
   },
 });

@@ -4,6 +4,27 @@
 -->
 <template>
   <div class="SoraMessageInput flex flex-col">
+    <!-- Reply Preview -->
+    <div
+      v-if="socketStore.replyingTo"
+      class="px-4 py-2 bg-gray-50 border-b border-gray-100 flex flex-row items-center justify-between"
+    >
+      <div class="flex flex-col overflow-hidden border-l-[3px] border-blue-500 pl-3">
+        <div class="text-[12px] font-bold text-blue-600 truncate">
+          {{ isReplyingToCurrentUser ? "Bạn" : "Dương Huân" }}
+        </div>
+        <div class="text-[13px] text-gray-500 truncate">
+          {{ replyContentSnippet }}
+        </div>
+      </div>
+      <div
+        @click="socketStore.clearReplyingTo"
+        class="p-1 hover:bg-gray-200 rounded-full cursor-pointer text-gray-400 bg-white shadow-sm"
+      >
+        <X :size="14" />
+      </div>
+    </div>
+
     <!-- Toolbar -->
     <div class="px-4 py-2 border-b border-gray-100 flex flex-row gap-4 items-center">
       <div
@@ -62,10 +83,10 @@
 </template>
 
 <script setup>
-import { SendHorizonal, Bold, Italic, Underline as UnderlineIcon } from "lucide-vue-next";
+import { SendHorizonal, Bold, Italic, Underline as UnderlineIcon, X } from "lucide-vue-next";
 // Components
 import { ElTooltip } from "element-plus";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useSocketStore } from "@/stores/socket";
 import { useAuthStore } from "@/stores/auth";
 
@@ -87,6 +108,17 @@ const editorRef = ref(null);
 const isBold = ref(false);
 const isItalic = ref(false);
 const isUnderline = ref(false);
+
+const isReplyingToCurrentUser = computed(() => {
+  return socketStore.replyingTo?.sender?.user_id === authStore.user?.id;
+});
+
+const replyContentSnippet = computed(() => {
+  if (!socketStore.replyingTo) return "";
+  const plainText = socketStore.replyingTo.message?.plain_text || "";
+  const firstLine = plainText.split("\n")[0];
+  return plainText.includes("\n") ? firstLine + "..." : firstLine;
+});
 
 /**
  * Cập nhật trạng thái toolbar
@@ -201,7 +233,14 @@ const send = async () => {
       blocks: blocks,
       plain_text: plainText,
     },
+    reply: socketStore.replyingTo
+      ? {
+          message_id: socketStore.replyingTo.id,
+        }
+      : null,
   });
+
+  socketStore.clearReplyingTo();
 
   // Thực hiện clear message input
   editorRef.value.innerHTML = "";

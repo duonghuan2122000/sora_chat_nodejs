@@ -4,6 +4,7 @@ import { defineStore } from "pinia";
 export const useSocketStore = defineStore("socket", {
   state: () => ({
     socket: null,
+    replyingTo: null, // Tin nhắn đang được trả lời
   }),
   actions: {
     /**
@@ -66,6 +67,20 @@ export const useSocketStore = defineStore("socket", {
       _this.socket.on("chat:message:reaction", async (payload) => {
         await callback(payload);
       });
+    },
+
+    /**
+     * Set tin nhắn đang được trả lời
+     */
+    setReplyingTo(message) {
+      this.replyingTo = message;
+    },
+
+    /**
+     * Xóa tin nhắn đang trả lời
+     */
+    clearReplyingTo() {
+      this.replyingTo = null;
     },
   },
 });
