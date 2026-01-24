@@ -22,8 +22,8 @@ app.post(
       return c.json(
         ResponseUtil.error(
           CreateConversationErrorInfo.Code.BAD_REQUEST,
-          CreateConversationErrorInfo.Message.BAD_REQUEST
-        )
+          CreateConversationErrorInfo.Message.BAD_REQUEST,
+        ),
       );
     }
     return parsed.data;
@@ -31,7 +31,7 @@ app.post(
   async (c) => {
     let { body } = c.req.valid("json");
     return c.json(ResponseUtil.success(await conversationService.create(body)));
-  }
+  },
 );
 
 // POST /conversations/:conversation_id/messages
@@ -43,14 +43,14 @@ app.post(
       return c.json(
         ResponseUtil.error(
           GetMessagesByConversationErrorInfo.Code.BAD_REQUEST,
-          GetMessagesByConversationErrorInfo.Message.BAD_REQUEST
-        )
+          GetMessagesByConversationErrorInfo.Message.BAD_REQUEST,
+        ),
       );
     }
     return parsed.data;
   }),
   async (c) => {
-    let { body } = c.req.valid("json");
+    let body = c.req.valid("json");
     let result = await messageService.getMessagesByConversation({
       ...body,
       conversation_id: c.req.param("conversation_id"),
@@ -65,13 +65,13 @@ app.post(
       });
     }
     return c.json(ResponseUtil.success(result));
-  }
+  },
 );
 
 // GET /conversations/:conversation_id
 app.get(AppUrlPath.Conversations.GET_CONVERSATION, async (c) => {
   let conversation = await conversationService.getConversation(
-    c.req.param("conversation_id")
+    c.req.param("conversation_id"),
   );
   if (conversation) {
     conversation.id = conversation._id;
@@ -91,8 +91,8 @@ app.post(
       return c.json(
         ResponseUtil.error(
           GetLatestConversationsErrorInfo.Code.BAD_REQUEST,
-          GetLatestConversationsErrorInfo.Message.BAD_REQUEST
-        )
+          GetLatestConversationsErrorInfo.Message.BAD_REQUEST,
+        ),
       );
     }
     return parsed.data;
@@ -111,7 +111,7 @@ app.post(
       return c;
     });
     return c.json(ResponseUtil.success(result));
-  }
+  },
 );
 
 export default app;

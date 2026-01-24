@@ -15,7 +15,7 @@ export const createConversationValidationSchema = z.object({
        * Id người dùng
        */
       user_id: z.string().nonempty(),
-    })
+    }),
   ),
 });
 
@@ -28,7 +28,7 @@ export const getMessagesByConversationValidationSchema = z.object({
   /**
    * Số bản ghi muốn lấy
    */
-  take: z.number().min(1).default(10),
+  limit: z.number().min(1).default(10),
 });
 
 export const getLatestConversationsValidationSchema = z.object({
@@ -40,7 +40,7 @@ export const getLatestConversationsValidationSchema = z.object({
   /**
    * Số bản ghi muốn lấy
    */
-  take: z.number().min(1).default(10),
+  limit: z.number().min(1).default(10),
 
   /**
    * Key tìm kiếm
