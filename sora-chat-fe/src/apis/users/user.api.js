@@ -28,6 +28,18 @@ class UserApi extends BaseApi {
   }
 
   /**
+   * Đăng xuất
+   * @author 25.01.2026
+   */
+  async logoutAsync() {
+    let result = await this.requestAsync(beBaseRequest, {
+      url: "/users/logout",
+      method: HttpRequestMethod.POST,
+    });
+    return result;
+  }
+
+  /**
    * Tìm kiếm user
    * @author 03.01.2026
    */
@@ -38,7 +50,7 @@ class UserApi extends BaseApi {
     if (!payload?.limit) {
       payload.limit = 10;
     }
-    if (!payload.hasOwnProperty("user_ids") || !payload?.user_ids) {
+    if (!Object.hasOwn(payload, "user_ids") || !payload?.user_ids) {
       payload.user_ids = [];
     }
     let result = await this.requestAsync(beBaseRequest, {
