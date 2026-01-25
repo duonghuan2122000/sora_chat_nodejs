@@ -9,7 +9,10 @@
       <ElDropdown trigger="click" placement="top-start">
         <div class="cursor-pointer">
           <img
-            src="https://cdn2.tuoitre.vn/zoom/515_322/471584752817336320/data/teen360/news/2020/09/01/59881/1598972593_118265345_2621091828152910_2700791632228574126_n.jpg"
+            :src="
+              authStore.user?.avatar_url ||
+              'https://cdn2.tuoitre.vn/zoom/515_322/471584752817336320/data/teen360/news/2020/09/01/59881/1598972593_118265345_2621091828152910_2700791632228574126_n.jpg'
+            "
             alt=""
             class="w-[36px] h-[36px] rounded-[50%]"
           />
@@ -17,7 +20,7 @@
         <template #dropdown>
           <ElDropdownMenu>
             <ElDropdownItem>Thông tin cá nhân</ElDropdownItem>
-            <ElDropdownItem>Đăng xuất</ElDropdownItem>
+            <ElDropdownItem @click="onLogout">Đăng xuất</ElDropdownItem>
           </ElDropdownMenu>
         </template>
       </ElDropdown>
@@ -28,4 +31,18 @@
 <script setup>
 // Components
 import { ElDropdown, ElDropdownItem, ElDropdownMenu } from "element-plus";
+import { useAuthStore } from "@/stores/auth";
+import { useRouter } from "vue-router";
+
+const authStore = useAuthStore();
+const router = useRouter();
+
+/**
+ * Thực hiện logout
+ * @author 25.01.2026
+ */
+const onLogout = async () => {
+  await authStore.logout();
+  router.push("/login");
+};
 </script>

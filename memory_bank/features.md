@@ -5,6 +5,7 @@
 - **User Authentication**
   - [x] Login with username/password.
   - [x] JWT-based session management (Cookies/Token).
+  - [x] Logout functionality (Clear cookies, redirection).
 - **Messaging (Real-time)**
   - [x] Basic text messaging.
   - [x] Real-time message delivery via Socket.io.
