@@ -14,13 +14,22 @@ class UserApi extends BaseApi {
     return result;
   }
 
-  /**
-   * Thực hiện login
-   * @author 02.01.2026
-   */
   async loginAsync(payload) {
     let result = await this.requestAsync(beBaseRequest, {
       url: "/users/login",
+      method: HttpRequestMethod.POST,
+      data: payload,
+    });
+    return result;
+  }
+
+  /**
+   * Đăng ký tài khoản mới
+   * @author 31.01.2026
+   */
+  async registerAsync(payload) {
+    let result = await this.requestAsync(beBaseRequest, {
+      url: "/users/register",
       method: HttpRequestMethod.POST,
       data: payload,
     });

@@ -14,6 +14,14 @@ const router = createRouter({
       },
     },
     {
+      path: "/register",
+      name: RouterName.Register,
+      component: () => import("@/views/RegisterView.vue"),
+      meta: {
+        anonymous: true,
+      },
+    },
+    {
       path: "/",
       component: () => import("@/layouts/MainLayout.vue"),
       children: [

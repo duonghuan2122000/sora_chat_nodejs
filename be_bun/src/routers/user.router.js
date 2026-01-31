@@ -2,14 +2,16 @@ import {
   AppUrlPath,
   HttpStatusCode,
   SearchUserErrorInfo,
+  RegisterErrorInfo,
+  CreateUserErrorInfo,
 } from "#src/common/const.common";
 import { Hono } from "hono";
 import { validator } from "hono/validator";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import {
-  createUserValidationSchema,
   loginValidationSchema,
   searchUserValidationSchema,
+  registerValidationSchema,
 } from "#src/validations/user.validation.js";
 import { ResponseUtil } from "#src/utils/request.util";
 import { addTime, getCurrentTime } from "#src/utils/common.util";
@@ -36,6 +38,28 @@ app.post(
     let { body } = c.req.valid("json");
     let user = await userService.createUser(body);
     return res.status(HttpStatusCode.OK).json(ResponseUtil.success(user));
+  },
+);
+
+// POST /users/register
+app.post(
+  AppUrlPath.Users.REGISTER,
+  validator("json", (value, c) => {
+    const parsed = registerValidationSchema.safeParse(value);
+    if (!parsed.success) {
+      return c.json(
+        ResponseUtil.error(
+          RegisterErrorInfo.Code.BAD_REQUEST,
+          RegisterErrorInfo.Message.BAD_REQUEST,
+        ),
+      );
+    }
+    return parsed.data;
+  }),
+  async (c) => {
+    let body = c.req.valid("json");
+    let result = await userService.registerUser(body);
+    return c.json(result);
   },
 );
 

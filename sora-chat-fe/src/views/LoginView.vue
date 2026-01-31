@@ -44,10 +44,14 @@
               :aria-invalid="!!errors.length"
             />
             <ul v-if="errors" class="text-red-500 text-sm list-disc ml-4">
-              <li v-for="err in errors">{{ err }}</li>
+              <li v-for="err in errors" :key="err">{{ err }}</li>
             </ul>
           </div>
         </VeeField>
+        <div class="mt-2 text-sm">
+          Chưa có tài khoản?
+          <ElButton type="primary" link @click="goToRegister">Đăng ký ngay</ElButton>
+        </div>
         <div>
           <ElButton type="primary" native-type="submit">Đăng nhập</ElButton>
         </div>
@@ -103,4 +107,8 @@ const handleLogin = handleSubmit(async (data) => {
     return;
   }
 });
+
+const goToRegister = () => {
+  router.push({ name: RouterName.Register });
+};
 </script>
