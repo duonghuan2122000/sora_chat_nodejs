@@ -19,5 +19,14 @@ export const useAuthStore = defineStore("auth", {
       this.user = result.data?.data;
       return this.user;
     },
+
+    /**
+     * Đăng xuất
+     * @author 25.01.2026
+     */
+    async logout() {
+      await userApi.logoutAsync();
+      this.user = null;
+    },
   },
 });

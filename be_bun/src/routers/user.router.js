@@ -5,7 +5,7 @@ import {
 } from "#src/common/const.common";
 import { Hono } from "hono";
 import { validator } from "hono/validator";
-import { getCookie, setCookie } from "hono/cookie";
+import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import {
   createUserValidationSchema,
   loginValidationSchema,
@@ -26,8 +26,8 @@ app.post(
       return c.json(
         ResponseUtil.error(
           CreateUserErrorInfo.Code.BAD_REQUEST,
-          CreateUserErrorInfo.Message.BAD_REQUEST
-        )
+          CreateUserErrorInfo.Message.BAD_REQUEST,
+        ),
       );
     }
     return parsed.data;
@@ -36,7 +36,7 @@ app.post(
     let { body } = c.req.valid("json");
     let user = await userService.createUser(body);
     return res.status(HttpStatusCode.OK).json(ResponseUtil.success(user));
-  }
+  },
 );
 
 // POST /users/login
@@ -48,8 +48,8 @@ app.post(
       return c.json(
         ResponseUtil.error(
           LoginErrorInfo.Code.BAD_REQUEST,
-          LoginErrorInfo.Message.BAD_REQUEST
-        )
+          LoginErrorInfo.Message.BAD_REQUEST,
+        ),
       );
     }
     return parsed.data;
@@ -68,7 +68,7 @@ app.post(
       });
     }
     return c.json(result);
-  }
+  },
 );
 
 // POST /users/search
@@ -80,8 +80,8 @@ app.post(
       return c.json(
         ResponseUtil.error(
           SearchUserErrorInfo.Code.BAD_REQUEST,
-          SearchUserErrorInfo.Message.BAD_REQUEST
-        )
+          SearchUserErrorInfo.Message.BAD_REQUEST,
+        ),
       );
     }
     return parsed.data;
@@ -89,7 +89,7 @@ app.post(
   async (c) => {
     let body = c.req.valid("json");
     return c.json(ResponseUtil.success(await userService.searchUser(body)));
-  }
+  },
 );
 
 // GET /users/me
@@ -103,11 +103,19 @@ app.get(AppUrlPath.Users.ME, async (c) => {
     return c.json(
       ResponseUtil.error(
         HttpStatusCode.UNAUTHORIZED,
-        HttpStatusCode.UNAUTHORIZED
-      )
+        HttpStatusCode.UNAUTHORIZED,
+      ),
     );
   }
   return c.json(ResponseUtil.success(await userService.getCurUser(token)));
+});
+
+// POST /users/logout
+app.post(AppUrlPath.Users.LOGOUT, async (c) => {
+  deleteCookie(c, "x_sora_access_token", {
+    path: "/",
+  });
+  return c.json(ResponseUtil.success(null));
 });
 
 export default app;

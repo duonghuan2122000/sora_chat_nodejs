@@ -104,6 +104,7 @@ export const AppUrlPath = {
     LOGIN: "/login",
     SEARCH: "/search",
     ME: "/me",
+    LOGOUT: "/logout",
   },
   Conversations: {
     BASE: "/conversations",
