@@ -20,6 +20,21 @@ export const HttpStatusCode = {
 };
 
 /**
+ * ErrorInfo đăng ký user
+ * @author dbhuan 31.01.2026
+ */
+export const RegisterErrorInfo = {
+  Code: {
+    BAD_REQUEST: "BAD_REQUEST",
+    USERNAME_ALREADY_EXISTS: "USERNAME_ALREADY_EXISTS",
+  },
+  Message: {
+    BAD_REQUEST: "Thông tin request không hợp lệ",
+    USERNAME_ALREADY_EXISTS: "Tên đăng nhập đã tồn tại",
+  },
+};
+
+/**
  * ErrorInfo tạo user
  * @author dbhuan 23.12.2025
  */
@@ -101,6 +116,7 @@ export const AppUrlPath = {
   Users: {
     BASE: "/users",
     CREATE: "/",
+    REGISTER: "/register",
     LOGIN: "/login",
     SEARCH: "/search",
     ME: "/me",

@@ -4,26 +4,34 @@
  */
 import * as z from "zod";
 
-export const createUserValidationSchema = z.object({
+export const registerValidationSchema = z.object({
   /**
    * Tên đăng nhập
    */
-  username: z.string().nonempty().min(6),
+  username: z
+    .string()
+    .nonempty("Tên đăng nhập không được bỏ trống")
+    .min(6, "Tên đăng nhập phải có ít nhất 6 ký tự"),
 
   /**
    * Mật khẩu
    */
-  password: z.string().nonempty().min(6),
+  password: z
+    .string()
+    .nonempty("Mật khẩu không được bỏ trống")
+    .min(6, "Mật khẩu phải có ít nhất 6 ký tự")
+    .regex(/[A-Za-z0-9]/, "Mật khẩu phải chứa ký tự A-Za-z0-9")
+    .regex(/[^A-Za-z0-9]/, "Mật khẩu phải chứa ít nhất một ký tự đặc biệt"),
 
   /**
    * Họ và tên đệm
    */
-  last_name: z.string().nonempty(),
+  last_name: z.string().nonempty("Họ và tên đệm không được bỏ trống"),
 
   /**
    * Tên
    */
-  first_name: z.string().nonempty(),
+  first_name: z.string().nonempty("Tên không được bỏ trống"),
 });
 
 export const loginValidationSchema = z.object({
