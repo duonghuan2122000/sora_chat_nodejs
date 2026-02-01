@@ -28,3 +28,19 @@ services:
           memory: 256M
           cpus: "0.5"
     restart: unless-stopped
+  # Valkey cache cho dự án
+  valkey:
+    image: valkey/valkey:9.0 # Sử dụng bản 9.0 để tận dụng tối đa đa luồng
+    container_name: valkey-server
+    ports:
+      - "6380:6379"
+    volumes:
+      - ./valkey_data:/data
+    # Lệnh khởi chạy với mật khẩu và chính sách bộ nhớ
+    command: >
+      valkey-server 
+      --requirepass 9f4muj31h4
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --appendonly yes
+    restart: always
