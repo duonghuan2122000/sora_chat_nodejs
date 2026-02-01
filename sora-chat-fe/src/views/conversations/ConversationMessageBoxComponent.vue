@@ -20,6 +20,7 @@
             :all-messages="props.messages"
             :key="message.id"
           />
+          <!-- <img src="http://localhost:3000/images/49b7e284-48ba-4563-a6ca-a1d60b55687c.webp" /> -->
         </div>
       </div>
       <div class="flex-0">
