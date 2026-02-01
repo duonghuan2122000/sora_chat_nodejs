@@ -121,6 +121,7 @@ export const AppUrlPath = {
     SEARCH: "/search",
     ME: "/me",
     LOGOUT: "/logout",
+    REFRESH_TOKEN: "/refresh-token",
   },
   Conversations: {
     BASE: "/conversations",

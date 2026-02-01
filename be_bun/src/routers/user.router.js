@@ -80,20 +80,64 @@ app.post(
   }),
   async (c) => {
     let body = c.req.valid("json");
-    console.log(body);
     let result = await userService.login(body);
     if (result?.success) {
-      // thực hiện set cookie cho response
+      // Access token cookie
       setCookie(c, "x_sora_access_token", result?.data?.token, {
         path: "/",
         httpOnly: true,
         expires: addTime(getCurrentTime(), result?.data?.expires_in),
         sameSite: "Strict",
       });
+      // Refresh token cookie
+      setCookie(c, "x_sora_refresh_token", result?.data?.refresh_token, {
+        path: "/",
+        httpOnly: true,
+        expires: addTime(getCurrentTime(), result?.data?.refresh_expires_in),
+        sameSite: "Strict",
+      });
     }
     return c.json(result);
   },
 );
+
+// POST /users/refresh-token
+app.post(AppUrlPath.Users.REFRESH_TOKEN, async (c) => {
+  let refreshToken = getCookie(c, "x_sora_refresh_token");
+  if (!refreshToken) {
+    c.status(HttpStatusCode.UNAUTHORIZED);
+    return c.json(
+      ResponseUtil.error(
+        HttpStatusCode.UNAUTHORIZED,
+        "Refresh token not found",
+      ),
+    );
+  }
+
+  let result = await userService.refreshToken(refreshToken);
+  if (result.success) {
+    // Cập nhật lại cookie
+    setCookie(c, "x_sora_access_token", result?.data?.token, {
+      path: "/",
+      httpOnly: true,
+      expires: addTime(getCurrentTime(), result?.data?.expires_in),
+      sameSite: "Strict",
+    });
+    setCookie(c, "x_sora_refresh_token", result?.data?.refresh_token, {
+      path: "/",
+      httpOnly: true,
+      expires: addTime(getCurrentTime(), result?.data?.refresh_expires_in),
+      sameSite: "Strict",
+    });
+  } else {
+    // Nếu refresh thất bại (hết hạn), xóa cookie
+    deleteCookie(c, "x_sora_access_token", { path: "/" });
+    deleteCookie(c, "x_sora_refresh_token", { path: "/" });
+    c.status(HttpStatusCode.UNAUTHORIZED);
+  }
+
+  return c.json(result);
+});
 
 // POST /users/search
 app.post(
@@ -136,7 +180,13 @@ app.get(AppUrlPath.Users.ME, async (c) => {
 
 // POST /users/logout
 app.post(AppUrlPath.Users.LOGOUT, async (c) => {
+  let refreshToken = getCookie(c, "x_sora_refresh_token");
+  await userService.logout(refreshToken);
+
   deleteCookie(c, "x_sora_access_token", {
+    path: "/",
+  });
+  deleteCookie(c, "x_sora_refresh_token", {
     path: "/",
   });
   return c.json(ResponseUtil.success(null));

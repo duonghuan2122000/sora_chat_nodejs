@@ -1,6 +1,7 @@
-import { HttpStatusCode, RouterName } from "@/commons/const.common";
+import { HttpStatusCode, RouterName, AppUrlPath } from "@/commons/const.common";
 import axios from "axios";
 import router from "@/router";
+import { beBaseRequest } from "./configs/be.config.api";
 export class BaseApi {
   constructor() {}
 
@@ -30,13 +31,66 @@ export class BaseApi {
         headers: error?.response?.headers,
         data: error?.response?.data,
       };
+
       if (result.httpStatusCode === HttpStatusCode.UNAUTHORIZED) {
+        // Nếu không phải là request refresh token thì mới thử refresh
+        if (url !== AppUrlPath.Users.REFRESH_TOKEN) {
+          // Thử refresh token
+          const refreshResult = await this.refreshTokenAsync();
+          if (refreshResult?.httpStatusCode === HttpStatusCode.OK) {
+            // Refresh thành công, thử lại request ban đầu
+            return await this.requestAsync(instanceConfig, {
+              url,
+              method,
+              data,
+              headers,
+            });
+          }
+        }
+
+        // Nếu refresh thất bại hoặc là chính request refresh bị 401
         // chuyển về trang login
         router.push({ name: RouterName.Login });
         return;
       }
     }
     return result;
+  }
+
+  /**
+   * Thực hiện gọi api refresh token
+   */
+  async refreshTokenAsync() {
+    if (this._isRefreshing) {
+      // Nếu đang refresh rồi thì đợi cái kia xong
+      return new Promise((resolve) => {
+        const check = setInterval(() => {
+          if (!this._isRefreshing) {
+            clearInterval(check);
+            resolve({ httpStatusCode: HttpStatusCode.OK }); // Giả định là ok để thử lại request
+          }
+        }, 100);
+      });
+    }
+
+    this._isRefreshing = true;
+    try {
+      const response = await beBaseRequest({
+        url: `${AppUrlPath.Users.BASE}${AppUrlPath.Users.REFRESH_TOKEN}`,
+        method: "POST",
+        withCredentials: true, // Quan trọng để gửi/nhận cookie
+      });
+      return {
+        httpStatusCode: response.status,
+        data: response.data,
+      };
+    } catch (error) {
+      return {
+        httpStatusCode: error?.response?.status,
+      };
+    } finally {
+      this._isRefreshing = false;
+    }
   }
 
   /**

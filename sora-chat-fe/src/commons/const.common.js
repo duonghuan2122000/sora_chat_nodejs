@@ -31,6 +31,17 @@ export const RouterName = {
   Conversation: "conversation",
 };
 
+export const AppUrlPath = {
+  Users: {
+    BASE: "/users",
+    LOGIN: "/login",
+    SEARCH: "/search",
+    ME: "/me",
+    LOGOUT: "/logout",
+    REFRESH_TOKEN: "/refresh-token",
+  },
+};
+
 export const EMPTY_UUID = "00000000-0000-0000-0000-000000000000";
 
 export const ConversationType = {

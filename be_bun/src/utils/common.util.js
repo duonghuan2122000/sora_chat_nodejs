@@ -51,11 +51,15 @@ export const comparePassword = async (password, hash) =>
  * @returns token
  * @author 24.12.2025
  */
-export const genJwt = async (payload, expiresIn = 86400) => {
+export const genJwt = async (
+  payload,
+  expiresIn = 86400,
+  secret = process.env.JWT_SECRET,
+) => {
   if (typeof payload === "object") {
     payload.exp = Math.floor(Date.now() / 1000) + expiresIn;
   }
-  let token = await signJwt(payload, process.env.JWT_SECRET);
+  let token = await signJwt(payload, secret);
 
   return token;
 };
@@ -66,8 +70,8 @@ export const genJwt = async (payload, expiresIn = 86400) => {
  * @returns Payload jwt
  * @author dbhuan 23.12.2025
  */
-export const decodeJwt = async (token) => {
-  let payload = await verifyJwt(token, process.env.JWT_SECRET);
+export const decodeJwt = async (token, secret = process.env.JWT_SECRET) => {
+  let payload = await verifyJwt(token, secret);
   return payload;
 };
 
