@@ -103,6 +103,21 @@ export const ChatMessageErrorInfo = {
   },
 };
 
+export const ImageUploadErrorInfo = {
+  Code: {
+    BAD_REQUEST: "BAD_REQUEST",
+    FILE_TOO_LARGE: "FILE_TOO_LARGE",
+    INVALID_FILE_TYPE: "INVALID_FILE_TYPE",
+    UPLOAD_FAILED: "UPLOAD_FAILED",
+  },
+  Message: {
+    BAD_REQUEST: "Thông tin request không hợp lệ",
+    FILE_TOO_LARGE: "File quá lớn",
+    INVALID_FILE_TYPE: "Định dạng file không hợp lệ",
+    UPLOAD_FAILED: "Upload file thất bại",
+  },
+};
+
 export const CurrentUserKey = "sora_current_user";
 
 /**
@@ -133,6 +148,11 @@ export const AppUrlPath = {
   Messages: {
     BASE: "/messages",
     REACTIONS: "/:message_id/reactions",
+  },
+  Images: {
+    BASE: "/images",
+    UPLOAD: "/upload",
+    STREAM: "/:filename",
   },
 };
 
