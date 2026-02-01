@@ -1,5 +1,10 @@
-import { LoginErrorInfo, RegisterErrorInfo } from "#src/common/const.common.js";
+import {
+  LoginErrorInfo,
+  RegisterErrorInfo,
+  HttpStatusCode,
+} from "#src/common/const.common.js";
 import { UserModel } from "#src/data/entities/user.entity.js";
+import { RefreshTokenModel } from "#src/data/entities/refreshToken.entity.js";
 import {
   comparePassword,
   genJwt,
@@ -7,6 +12,7 @@ import {
   getNewUUID,
   hashPassword,
   decodeJwt,
+  addTime,
 } from "#src/utils/common.util.js";
 import { ResponseUtil } from "#src/utils/request.util.js";
 
@@ -66,18 +72,129 @@ class UserService {
         LoginErrorInfo.Message.USERNAME_PASSWORD_INVALID,
       );
     }
-    let expiresIn = parseInt(process.env.JWT_EXPIRES_IN); // 1 ngày
-    let token = await genJwt(
-      {
+    let expiresIn = parseInt(process.env.JWT_EXPIRES_IN); // 2 phút (theo .env hiện tại)
+    let jwtPayload = {
+      sub: user._id,
+      username: user.username,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      v: parseInt(process.env.JWT_VERSION ?? "1"),
+    };
+
+    let token = await genJwt(jwtPayload, expiresIn);
+
+    // Tạo refresh token
+    let refreshExpiresIn = parseInt(process.env.JWT_REFRESH_EXPIRES_IN);
+    let refreshToken = await genJwt(
+      jwtPayload,
+      refreshExpiresIn,
+      process.env.JWT_REFRESH_SECRET,
+    );
+
+    // Lưu refresh token vào DB
+    await RefreshTokenModel.create({
+      _id: getNewUUID(),
+      user_id: user._id,
+      token: refreshToken,
+      expires_at: addTime(getCurrentTime(), refreshExpiresIn),
+    });
+
+    return ResponseUtil.success({
+      token,
+      expires_in: expiresIn,
+      refresh_token: refreshToken,
+      refresh_expires_in: refreshExpiresIn,
+    });
+  }
+
+  /**
+   * Hàm làm mới access token
+   * @author dbhuan 31.01.2026
+   */
+  async refreshToken(token) {
+    try {
+      // 1. Verify refresh token
+      let payload = await decodeJwt(token, process.env.JWT_REFRESH_SECRET);
+      if (!payload) {
+        return ResponseUtil.error(
+          HttpStatusCode.UNAUTHORIZED,
+          "Refresh token không hợp lệ",
+        );
+      }
+
+      // 2. Kiểm tra trong DB xem token còn tồn tại không (để tránh reuse token cũ đã rotate)
+      let refreshTokenDoc = await RefreshTokenModel.findOne({ token }).lean();
+      if (!refreshTokenDoc) {
+        return ResponseUtil.error(
+          HttpStatusCode.UNAUTHORIZED,
+          "Refresh token đã hết hạn hoặc đã được sử dụng",
+        );
+      }
+
+      // 3. Xóa token cũ (Rotation)
+      await RefreshTokenModel.deleteOne({ _id: refreshTokenDoc._id });
+
+      // 4. Tạo token mới
+      let user = await UserModel.findById(payload.sub).lean();
+      if (!user) {
+        return ResponseUtil.error(
+          HttpStatusCode.UNAUTHORIZED,
+          "Người dùng không tồn tại",
+        );
+      }
+
+      let jwtPayload = {
         sub: user._id,
         username: user.username,
         first_name: user.first_name,
         last_name: user.last_name,
         v: parseInt(process.env.JWT_VERSION ?? "1"),
-      },
-      expiresIn,
-    );
-    return ResponseUtil.success({ token, expires_in: expiresIn });
+      };
+
+      let expiresIn = parseInt(process.env.JWT_EXPIRES_IN);
+      let newAccessToken = await genJwt(jwtPayload, expiresIn);
+
+      let refreshExpiresIn = parseInt(process.env.JWT_REFRESH_EXPIRES_IN);
+      let newRefreshToken = await genJwt(
+        jwtPayload,
+        refreshExpiresIn,
+        process.env.JWT_REFRESH_SECRET,
+      );
+
+      // 5. Lưu refresh token mới vào DB
+      await RefreshTokenModel.create({
+        _id: getNewUUID(),
+        user_id: user._id,
+        token: newRefreshToken,
+        expires_at: addTime(getCurrentTime(), refreshExpiresIn),
+      });
+
+      return ResponseUtil.success({
+        token: newAccessToken,
+        expires_in: expiresIn,
+        refresh_token: newRefreshToken,
+        refresh_expires_in: refreshExpiresIn,
+      });
+    } catch (error) {
+      console.error(error);
+      return ResponseUtil.error(
+        HttpStatusCode.UNAUTHORIZED,
+        "Refresh token không hợp lệ hoặc đã hết hạn",
+      );
+    }
+  }
+
+  /**
+   * Đăng xuất - Xóa hết refresh token của user
+   */
+  async logout(token) {
+    try {
+      // Lấy refresh token từ cookie/DB để xóa
+      await RefreshTokenModel.deleteOne({ token });
+    } catch (error) {
+      console.error(error);
+    }
+    return ResponseUtil.success(null);
   }
 
   /**
