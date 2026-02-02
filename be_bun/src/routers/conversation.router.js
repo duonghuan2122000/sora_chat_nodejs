@@ -29,7 +29,7 @@ app.post(
     return parsed.data;
   }),
   async (c) => {
-    let { body } = c.req.valid("json");
+    let body = c.req.valid("json");
     return c.json(ResponseUtil.success(await conversationService.create(body)));
   },
 );

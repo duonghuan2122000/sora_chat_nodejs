@@ -39,7 +39,7 @@ class ConversationService {
         break;
     }
 
-    conversation = await ConversationModel.insertOne(conversation);
+    conversation = await ConversationModel.create(conversation);
     return conversation;
   }
 
@@ -96,7 +96,7 @@ class ConversationService {
     let userIdsInDirect = result
       .filter((c) => c.type === ConversationType.DIRECT)
       .flatMap((c) =>
-        c.members.map((m) => m.user_id).filter((userId) => userId)
+        c.members.map((m) => m.user_id).filter((userId) => userId),
       );
 
     let users = await UserModel.find({

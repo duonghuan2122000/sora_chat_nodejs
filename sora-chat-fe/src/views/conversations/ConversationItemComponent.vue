@@ -10,11 +10,7 @@
   >
     <div class="flex-none w-[36px] h-[36px]">
       <div class="relative">
-        <img
-          src="https://cdn2.tuoitre.vn/zoom/515_322/471584752817336320/data/teen360/news/2020/09/01/59881/1598972593_118265345_2621091828152910_2700791632228574126_n.jpg"
-          alt=""
-          class="w-[36px] h-[36px] rounded-[50%]"
-        />
+        <img :src="avatarUrl" alt="" class="w-[36px] h-[36px] rounded-[50%]" />
         <div
           v-if="online"
           class="absolute h-[12px] w-[12px] bg-green-500 rounded-[50%] bottom-[-2px] right-[-2px] border border-gray-200"
@@ -34,9 +30,8 @@
 </template>
 
 <script setup>
-import { ConversationType, RouterName } from "@/commons/const.common";
+import { ConversationType } from "@/commons/const.common";
 import { computed } from "vue";
-import { useRouter } from "vue-router";
 
 const props = defineProps({
   /**
@@ -83,8 +78,6 @@ const props = defineProps({
   },
 });
 
-const router = useRouter();
-
 const unReadMessageText = computed(() => {
   if (props.unReadMessage > 10) {
     return "10+";
@@ -94,23 +87,50 @@ const unReadMessageText = computed(() => {
 
 // Tên cuộc trò chuyện
 const conversationName = computed(() => {
-  if (props.conversation?.type === ConversationType.DIRECT) {
-    let otherUser = props.conversation?.members?.find((m) => m.user_id !== props.currentUser?.id);
-    return `${otherUser?.last_name} ${otherUser?.first_name}`;
+  if (
+    props.conversation?.type === "direct" ||
+    props.conversation?.type === ConversationType.DIRECT
+  ) {
+    const currentId = props.currentUser?.id || props.currentUser?.user_id;
+    const otherUser = props.conversation?.members?.find((m) => (m.user_id || m.id) !== currentId);
+    if (otherUser) {
+      return (
+        `${otherUser?.last_name || ""} ${otherUser?.first_name || ""}`.trim() ||
+        otherUser?.username ||
+        "Người dùng"
+      );
+    }
   }
-  return props.conversation?.name;
+  return props.conversation?.name || "Cuộc trò chuyện";
 });
+
+// Avatar của cuộc trò chuyện
+const avatarUrl = computed(() => {
+  if (props.conversation?.avatar_url) return props.conversation.avatar_url;
+
+  if (
+    props.conversation?.type === "direct" ||
+    props.conversation?.type === ConversationType.DIRECT
+  ) {
+    const currentId = props.currentUser?.id || props.currentUser?.user_id;
+    const otherUser = props.conversation?.members?.find((m) => (m.user_id || m.id) !== currentId);
+    if (otherUser?.avatar) {
+      if (otherUser.avatar.startsWith("http")) return otherUser.avatar;
+      return `${window._apis.beBaseUrl}/images/${otherUser.avatar}`;
+    }
+  }
+
+  // Mặc định
+  return "https://cdn2.tuoitre.vn/zoom/515_322/471584752817336320/data/teen360/news/2020/09/01/59881/1598972593_118265345_2621091828152910_2700791632228574126_n.jpg";
+});
+
+const emit = defineEmits(["choose-conversation"]);
 
 /**
  * Sự kiện chọn cuộc trò chuyện
  * @author dbhuan 14.01.2026
  */
 const handleChooseConversation = async () => {
-  router.push({
-    name: RouterName.Conversation,
-    params: {
-      id: props.conversation.id,
-    },
-  });
+  emit("choose-conversation", props.conversation);
 };
 </script>

@@ -28,7 +28,7 @@ class UserService {
       password_hashed: await hashPassword(payload.password),
     };
 
-    user = await UserModel.insertOne(user);
+    user = await UserModel.create(user);
     return user;
   }
 
@@ -231,9 +231,11 @@ class UserService {
       items: users.map((u) => {
         return {
           id: u._id,
+          user_id: u._id, // Add user_id for frontend consistency
           first_name: u.first_name,
           last_name: u.last_name,
           username: u.username,
+          avatar: u.avatar,
         };
       }),
     };
@@ -241,11 +243,14 @@ class UserService {
 
   async getCurUser(token) {
     let payload = await decodeJwt(token);
+    let user = await UserModel.findById(payload.sub).lean();
     return {
-      id: payload.sub,
-      first_name: payload.first_name,
-      last_name: payload.last_name,
-      username: payload.username,
+      id: user._id,
+      user_id: user._id,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      username: user.username,
+      avatar: user.avatar,
     };
   }
 }

@@ -38,6 +38,19 @@ class ConversationApi extends BaseApi {
 
     return result;
   }
+
+  /**
+   * Tạo cuộc trò chuyện
+   * @author dbhuan 02.02.2026
+   */
+  async createConversationAsync(payload) {
+    let result = await this.requestAsync(beBaseRequest, {
+      url: "/conversations",
+      method: HttpRequestMethod.POST,
+      data: payload,
+    });
+    return result;
+  }
 }
 
 export const conversationApi = new ConversationApi();

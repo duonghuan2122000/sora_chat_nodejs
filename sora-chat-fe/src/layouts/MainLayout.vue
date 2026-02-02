@@ -3,7 +3,7 @@
     @author dbhuan 14.01.2026
 -->
 <template>
-  <router-view />
+  <router-view :key="$route.fullPath" />
 </template>
 
 <script setup>
