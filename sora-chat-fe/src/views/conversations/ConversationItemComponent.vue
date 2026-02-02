@@ -30,9 +30,8 @@
 </template>
 
 <script setup>
-import { ConversationType, RouterName } from "@/commons/const.common";
+import { ConversationType } from "@/commons/const.common";
 import { computed } from "vue";
-import { useRouter } from "vue-router";
 
 const props = defineProps({
   /**
@@ -78,8 +77,6 @@ const props = defineProps({
     default: null,
   },
 });
-
-const router = useRouter();
 
 const unReadMessageText = computed(() => {
   if (props.unReadMessage > 10) {
@@ -127,16 +124,13 @@ const avatarUrl = computed(() => {
   return "https://cdn2.tuoitre.vn/zoom/515_322/471584752817336320/data/teen360/news/2020/09/01/59881/1598972593_118265345_2621091828152910_2700791632228574126_n.jpg";
 });
 
+const emit = defineEmits(["choose-conversation"]);
+
 /**
  * Sự kiện chọn cuộc trò chuyện
  * @author dbhuan 14.01.2026
  */
 const handleChooseConversation = async () => {
-  router.push({
-    name: RouterName.Conversation,
-    params: {
-      id: props.conversation.id,
-    },
-  });
+  emit("choose-conversation", props.conversation);
 };
 </script>

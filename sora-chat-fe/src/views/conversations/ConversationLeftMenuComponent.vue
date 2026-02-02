@@ -28,6 +28,7 @@
           :unReadMessage="index == 1 ? 10 : 0"
           :currentUser="authStore.user"
           :conversation="conversation"
+          @choose-conversation="handleChooseConversation"
         />
       </div>
 
@@ -48,6 +49,7 @@
                     { ...user, user_id: user.id },
                   ],
                 }"
+                @choose-conversation="handleChooseConversationResult"
               />
             </template>
             <div v-else class="text-center text-gray-400 py-10">Không tìm thấy user</div>
@@ -68,17 +70,66 @@ import ConversationItemComponent from "@/views/conversations/ConversationItemCom
 import { onMounted, ref, watch } from "vue";
 import { useConversationStore } from "@/stores/conversation";
 import { useAuthStore } from "@/stores/auth";
+import { useRouter } from "vue-router";
+import { RouterName } from "@/commons/const.common";
 
 const keySearch = ref("");
 const isSearching = ref(false);
 const activeTab = ref("user");
 
+const router = useRouter();
 let authStore = useAuthStore();
 const conversationStore = useConversationStore();
 
 onMounted(() => {
   conversationStore.getLatestConversationsAsync();
 });
+
+/**
+ * Xử lý khi chọn cuộc trò chuyện từ danh sách
+ * @author dbhuan 02.02.2026
+ */
+const handleChooseConversation = (conversation) => {
+  router.push({
+    name: RouterName.Conversation,
+    params: {
+      id: conversation.id,
+    },
+  });
+};
+
+/**
+ * Xử lý khi chọn user/group từ kết quả tìm kiếm
+ * @author dbhuan 02.02.2026
+ */
+const handleChooseConversationResult = async (conversation) => {
+  try {
+    // 1. Kiểm tra/Tạo cuộc trò chuyện
+    const payload = {
+      type: conversation.type,
+      members: conversation.members.map((m) => ({ user_id: m.user_id })),
+    };
+
+    const result = await conversationStore.createConversationAsync(payload);
+
+    if (result && result._id) {
+      // 2. Chuyển sang màn hình cuộc trò chuyện
+      router.push({
+        name: RouterName.Conversation,
+        params: {
+          id: result._id,
+        },
+      });
+
+      // 3. Xóa kết quả tìm kiếm
+      handleClearSearch();
+      keySearch.value = "";
+    }
+  } catch (error) {
+    console.error(error);
+    ElMessage.error("Có lỗi xảy ra khi tạo cuộc trò chuyện");
+  }
+};
 
 /**
  * Xử lý tìm kiếm khi nhấn enter

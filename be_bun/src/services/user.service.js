@@ -28,7 +28,7 @@ class UserService {
       password_hashed: await hashPassword(payload.password),
     };
 
-    user = await UserModel.insertOne(user);
+    user = await UserModel.create(user);
     return user;
   }
 

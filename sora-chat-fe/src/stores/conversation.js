@@ -75,5 +75,14 @@ export const useConversationStore = defineStore("conversation", {
       this.searchedUsers = [];
       this.searchedGroups = [];
     },
+
+    /**
+     * Tạo cuộc trò chuyện
+     * @author dbhuan 02.02.2026
+     */
+    async createConversationAsync(payload) {
+      let result = await conversationApi.createConversationAsync(payload);
+      return result.data?.data;
+    },
   },
 });

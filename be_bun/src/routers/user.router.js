@@ -35,7 +35,7 @@ app.post(
     return parsed.data;
   }),
   async (c) => {
-    let { body } = c.req.valid("json");
+    let body = c.req.valid("json");
     let user = await userService.createUser(body);
     return res.status(HttpStatusCode.OK).json(ResponseUtil.success(user));
   },
