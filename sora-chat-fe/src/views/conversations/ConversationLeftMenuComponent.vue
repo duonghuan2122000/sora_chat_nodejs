@@ -21,11 +21,9 @@
       <!-- Hiển thị danh sách cuộc trò chuyện khi không tìm kiếm -->
       <div v-if="!isSearching" class="flex-1 overflow-y-auto px-2 py-2">
         <ConversationItemComponent
-          v-for="(conversation, index) in conversationStore.conversations"
+          v-for="conversation in conversationStore.conversations"
           :key="conversation.id"
-          :active="index == 1"
-          :online="index == 1"
-          :unReadMessage="index == 1 ? 10 : 0"
+          :active="conversation.id === route.params.id"
           :currentUser="authStore.user"
           :conversation="conversation"
           @choose-conversation="handleChooseConversation"
@@ -40,6 +38,7 @@
               <ConversationItemComponent
                 v-for="user in conversationStore.searchedUsers"
                 :key="user.id"
+                :active="user.id === route.params.id"
                 :currentUser="authStore.user"
                 :conversation="{
                   id: user.id,
@@ -70,8 +69,10 @@ import ConversationItemComponent from "@/views/conversations/ConversationItemCom
 import { onMounted, ref, watch } from "vue";
 import { useConversationStore } from "@/stores/conversation";
 import { useAuthStore } from "@/stores/auth";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { RouterName } from "@/commons/const.common";
+
+const route = useRoute();
 
 const keySearch = ref("");
 const isSearching = ref(false);
