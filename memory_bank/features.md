@@ -22,6 +22,12 @@
   - [x] Creating/Getting conversations.
 - **User Profile**
   - [x] Basic user info retrieval.
+- **Search (Users, Groups)**
+  - [x] Search users by username, first name, last name.
+  - [x] Search results separated into User and Group tabs.
+  - [x] Client-side validation: 2-30 characters, no special characters, non-empty.
+  - [x] Integration with Element Plus UI.
+  - [x] Backend placeholder for Group search.
 
 ## 🟡 To Be Implemented (Checklist)
 
@@ -33,4 +39,4 @@
 - [ ] Group chats (Currently seems focused on 1-to-1 but structure supports members).
 - [ ] Notifications (Browser/Push).
 - [ ] End-to-end encryption (Optional).
-- [ ] Search (Users, Conversations, Messages).
+- [ ] Search (Conversations, Messages).

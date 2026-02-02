@@ -67,6 +67,15 @@ export const SearchUserErrorInfo = {
   },
 };
 
+export const SearchGroupErrorInfo = {
+  Code: {
+    BAD_REQUEST: "BAD_REQUEST",
+  },
+  Message: {
+    BAD_REQUEST: "Thông tin request không hợp lệ",
+  },
+};
+
 export const CreateConversationErrorInfo = {
   Code: {
     BAD_REQUEST: "BAD_REQUEST",
@@ -137,6 +146,10 @@ export const AppUrlPath = {
     ME: "/me",
     LOGOUT: "/logout",
     REFRESH_TOKEN: "/refresh-token",
+  },
+  Groups: {
+    BASE: "/groups",
+    SEARCH: "/search",
   },
   Conversations: {
     BASE: "/conversations",

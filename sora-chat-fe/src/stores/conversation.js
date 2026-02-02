@@ -1,10 +1,13 @@
 import { conversationApi } from "@/apis/conversations/conversation.api";
 import { userApi } from "@/apis/users/user.api";
+import { groupApi } from "@/apis/groups/group.api";
 import { defineStore } from "pinia";
 
 export const useConversationStore = defineStore("conversation", {
   state: () => ({
     conversations: [],
+    searchedUsers: [],
+    searchedGroups: [],
     key_search: "",
     skip: 0,
     limit: 10,
@@ -22,8 +25,8 @@ export const useConversationStore = defineStore("conversation", {
     },
 
     /**
-     * Tìm kiếm user, cuộc trò chuyện
-     * @author 03.01.2026
+     * Tìm kiếm user, nhóm
+     * @author 02.02.2026
      */
     async getSearchResultAsync({ key_search = "" }) {
       if (key_search !== this.key_search) {
@@ -32,39 +35,45 @@ export const useConversationStore = defineStore("conversation", {
       } else {
         this.skip += this.limit;
       }
-      let result = await Promise.all([
-        (async () => {
-          let res = await conversationApi.getLatestConversationsAsync({
-            skip: this.skip,
-            limit: this.limit,
-            key_search: this.key_search,
-          });
-          return {
-            type: "conversations",
-            data: res,
-          };
-        })(),
-        (async () => {
-          let res = await userApi.searchUsersAsync({
-            skip: this.skip,
-            limit: this.limit,
-            key_search: this.key_search,
-          });
-          return {
-            type: "users",
-            data: res,
-          };
-        })(),
+
+      let [userRes, groupRes] = await Promise.all([
+        userApi.searchUsersAsync({
+          skip: this.skip,
+          limit: this.limit,
+          key_search: this.key_search,
+        }),
+        groupApi.searchGroupsAsync({
+          skip: this.skip,
+          limit: this.limit,
+          key_search: this.key_search,
+        }),
       ]);
 
-      console.log(result);
+      let users = userRes.data?.data?.items || [];
+      let groups = groupRes.data?.data?.items || [];
 
-      let conversations =
-        result.find((item) => item.type === "conversations")?.data?.data?.data || [];
-      let users = result.find((item) => item.type === "users")?.data?.data?.data?.items || [];
-      let newConversationsState = [...this.conversations, ...conversations, ...users];
-      this.conversations = newConversationsState;
-      return this.conversations;
+      if (this.skip === 0) {
+        this.searchedUsers = users;
+        this.searchedGroups = groups;
+      } else {
+        this.searchedUsers = [...this.searchedUsers, ...users];
+        this.searchedGroups = [...this.searchedGroups, ...groups];
+      }
+
+      return {
+        users: this.searchedUsers,
+        groups: this.searchedGroups,
+      };
+    },
+
+    /**
+     * Reset kết quả tìm kiếm
+     */
+    resetSearch() {
+      this.key_search = "";
+      this.skip = 0;
+      this.searchedUsers = [];
+      this.searchedGroups = [];
     },
   },
 });
