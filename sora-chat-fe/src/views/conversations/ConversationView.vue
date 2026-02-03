@@ -24,6 +24,10 @@ import { useRoute } from "vue-router";
 import { conversationApi } from "@/apis/conversations/conversation.api";
 import { messageApi } from "@/apis/messages/message.api";
 import { useSocketStore } from "@/stores/socket";
+import { useTitle } from "@vueuse/core";
+import { ConversationType } from "@/commons/const.common";
+import { useAuthStore } from "@/stores/auth";
+import { computed, watch } from "vue";
 
 const socketStore = useSocketStore();
 const route = useRoute();
@@ -35,6 +39,30 @@ const payloadMessage = ref({
 });
 const messages = ref([]);
 const refConversationMessageBoxComponent = ref(null);
+const authStore = useAuthStore();
+const title = useTitle();
+
+// Tên cuộc trò chuyện
+const conversationName = computed(() => {
+  if (conversation.value?.type === ConversationType.DIRECT) {
+    let otherUser = conversation.value?.members?.find((m) => m.user_id !== authStore.user?.id);
+    return `${otherUser?.last_name} ${otherUser?.first_name}`;
+  }
+  return conversation.value?.name;
+});
+
+// Cập nhật title trang web
+watch(
+  conversationName,
+  (newName) => {
+    if (newName) {
+      title.value = `${newName} | Sora Chat`;
+    } else {
+      title.value = "Sora Chat";
+    }
+  },
+  { immediate: true },
+);
 
 onMounted(() => {
   getConversation();

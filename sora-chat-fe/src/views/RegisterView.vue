@@ -97,7 +97,8 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+import { useTitle } from "@vueuse/core";
 import { toTypedSchema } from "@vee-validate/zod";
 import { z } from "zod";
 import { useForm, Field as VeeField } from "vee-validate";
@@ -134,6 +135,10 @@ const { handleSubmit, setErrors } = useForm({
     username: "",
     password: "",
   },
+});
+
+onMounted(() => {
+  useTitle("Register | Sora Chat");
 });
 
 const handleRegister = handleSubmit(async (values) => {
