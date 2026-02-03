@@ -20,4 +20,7 @@
 <script setup>
 import ConversationLeftMenuComponent from "@/views/conversations/ConversationLeftMenuComponent.vue";
 import ToolbarComponent from "@/views/conversations/ToolbarComponent.vue";
+import { useTitle } from "@vueuse/core";
+
+useTitle("Sora Chat");
 </script>

@@ -71,6 +71,7 @@ import { RouterName } from "@/commons/const.common";
 
 // Component
 import { ElInput, ElButton, ElCard } from "element-plus";
+import { useTitle } from "@vueuse/core";
 
 const router = useRouter();
 
@@ -95,7 +96,9 @@ const { handleSubmit, resetForm } = useForm({
   },
 });
 
-onMounted(() => {});
+onMounted(() => {
+  useTitle("Login | Sora Chat");
+});
 
 /**
  * Hàm xử lý sự kiện login
