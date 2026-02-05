@@ -4,6 +4,7 @@ import {
   SearchUserErrorInfo,
   RegisterErrorInfo,
   CreateUserErrorInfo,
+  UpdateUserErrorInfo,
 } from "#src/common/const.common";
 import { Hono } from "hono";
 import { validator } from "hono/validator";
@@ -12,9 +13,11 @@ import {
   loginValidationSchema,
   searchUserValidationSchema,
   registerValidationSchema,
+  updateUserValidationSchema,
+  createUserValidationSchema,
 } from "#src/validations/user.validation.js";
 import { ResponseUtil } from "#src/utils/request.util";
-import { addTime, getCurrentTime } from "#src/utils/common.util";
+import { addTime, getCurrentTime, decodeJwt } from "#src/utils/common.util";
 import { userService } from "#src/services/user.service";
 
 const app = new Hono();
@@ -37,7 +40,7 @@ app.post(
   async (c) => {
     let body = c.req.valid("json");
     let user = await userService.createUser(body);
-    return res.status(HttpStatusCode.OK).json(ResponseUtil.success(user));
+    return c.json(ResponseUtil.success(user));
   },
 );
 
@@ -177,6 +180,43 @@ app.get(AppUrlPath.Users.ME, async (c) => {
   }
   return c.json(ResponseUtil.success(await userService.getCurUser(token)));
 });
+
+// PATCH /users/me
+app.patch(
+  AppUrlPath.Users.UPDATE_ME,
+  validator("json", (value, c) => {
+    const parsed = updateUserValidationSchema.safeParse(value);
+    if (!parsed.success) {
+      return c.json(
+        ResponseUtil.error(
+          UpdateUserErrorInfo.Code.BAD_REQUEST,
+          UpdateUserErrorInfo.Message.BAD_REQUEST,
+        ),
+      );
+    }
+    return parsed.data;
+  }),
+  async (c) => {
+    let token = getCookie(c, "x_sora_access_token");
+    if (!token) {
+      token = c.req.header("Authorization")?.replace("Bearer ", "");
+    }
+    if (!token) {
+      c.status(HttpStatusCode.UNAUTHORIZED);
+      return c.json(
+        ResponseUtil.error(
+          HttpStatusCode.UNAUTHORIZED,
+          HttpStatusCode.UNAUTHORIZED,
+        ),
+      );
+    }
+    let payload = await decodeJwt(token);
+    let body = c.req.valid("json");
+    return c.json(
+      ResponseUtil.success(await userService.updateUser(payload.sub, body)),
+    );
+  },
+);
 
 // POST /users/logout
 app.post(AppUrlPath.Users.LOGOUT, async (c) => {

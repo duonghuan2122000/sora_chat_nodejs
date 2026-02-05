@@ -1,6 +1,7 @@
 export const HttpRequestMethod = {
   GET: "GET",
   POST: "POST",
+  PATCH: "PATCH",
 };
 
 /**
@@ -29,6 +30,7 @@ export const RouterName = {
   Login: "login",
   Register: "register",
   Conversation: "conversation",
+  UserInfo: "userInfo",
 };
 
 export const AppUrlPath = {
