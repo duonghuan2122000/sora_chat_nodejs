@@ -25,7 +25,7 @@
 
 - `main.js`: App initialization.
 - `App.vue`: Root component.
-- `apis/`: Axios wrappers for API communication.
+- `apis/`: Axios wrappers for API communication (Auth, Users, Conversations, Images).
 - `stores/`: Pinia stores (Auth, Socket, Conversation).
 - `views/`: Page components (Login, Home/Chat).
 - `components/`: Reusable UI components.

@@ -67,6 +67,15 @@ export const SearchUserErrorInfo = {
   },
 };
 
+export const UpdateUserErrorInfo = {
+  Code: {
+    BAD_REQUEST: "BAD_REQUEST",
+  },
+  Message: {
+    BAD_REQUEST: "Thông tin request không hợp lệ",
+  },
+};
+
 export const SearchGroupErrorInfo = {
   Code: {
     BAD_REQUEST: "BAD_REQUEST",
@@ -144,6 +153,7 @@ export const AppUrlPath = {
     LOGIN: "/login",
     SEARCH: "/search",
     ME: "/me",
+    UPDATE_ME: "/me",
     LOGOUT: "/logout",
     REFRESH_TOKEN: "/refresh-token",
   },

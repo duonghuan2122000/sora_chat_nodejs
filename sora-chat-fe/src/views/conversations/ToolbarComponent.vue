@@ -10,7 +10,7 @@
         <div class="cursor-pointer">
           <img
             :src="
-              authStore.user?.avatar_url ||
+              authStore.user?.avatar ||
               'https://cdn2.tuoitre.vn/zoom/515_322/471584752817336320/data/teen360/news/2020/09/01/59881/1598972593_118265345_2621091828152910_2700791632228574126_n.jpg'
             "
             alt=""
@@ -19,7 +19,9 @@
         </div>
         <template #dropdown>
           <ElDropdownMenu>
-            <ElDropdownItem>Thông tin cá nhân</ElDropdownItem>
+            <ElDropdownItem @click="router.push({ name: RouterName.UserInfo })"
+              >Thông tin cá nhân</ElDropdownItem
+            >
             <ElDropdownItem @click="onLogout">Đăng xuất</ElDropdownItem>
           </ElDropdownMenu>
         </template>
@@ -33,6 +35,7 @@
 import { ElDropdown, ElDropdownItem, ElDropdownMenu } from "element-plus";
 import { useAuthStore } from "@/stores/auth";
 import { useRouter } from "vue-router";
+import { RouterName } from "@/commons/const.common";
 
 const authStore = useAuthStore();
 const router = useRouter();

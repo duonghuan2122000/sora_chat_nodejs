@@ -253,6 +253,31 @@ class UserService {
       avatar: user.avatar,
     };
   }
+
+  /**
+   * Cập nhật thông tin user
+   * @author dbhuan 03.02.2026
+   */
+  async updateUser(userId, payload) {
+    let updateData = {};
+    if (payload.first_name !== undefined)
+      updateData.first_name = payload.first_name;
+    if (payload.last_name !== undefined)
+      updateData.last_name = payload.last_name;
+    if (payload.avatar !== undefined) updateData.avatar = payload.avatar;
+
+    let user = await UserModel.findByIdAndUpdate(userId, updateData, {
+      new: true,
+    }).lean();
+    return {
+      id: user._id,
+      user_id: user._id,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      username: user.username,
+      avatar: user.avatar,
+    };
+  }
 }
 
 export const userService = new UserService();

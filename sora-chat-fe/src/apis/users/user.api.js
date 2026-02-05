@@ -69,6 +69,19 @@ class UserApi extends BaseApi {
     });
     return result;
   }
+
+  /**
+   * Cập nhật thông tin user
+   * @author dbhuan 03.02.2026
+   */
+  async updateUserAsync(payload) {
+    let result = await this.requestAsync(beBaseRequest, {
+      url: "/users/me",
+      method: HttpRequestMethod.PATCH,
+      data: payload,
+    });
+    return result;
+  }
 }
 
 export const userApi = new UserApi();

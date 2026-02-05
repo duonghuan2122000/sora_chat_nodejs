@@ -34,6 +34,8 @@ export const registerValidationSchema = z.object({
   first_name: z.string().nonempty("Tên không được bỏ trống"),
 });
 
+export const createUserValidationSchema = registerValidationSchema;
+
 export const loginValidationSchema = z.object({
   /**
    * Tên đăng nhập
@@ -67,4 +69,21 @@ export const searchUserValidationSchema = z.object({
    * Danh sách id người dùng
    */
   user_ids: z.array(z.string()),
+});
+
+export const updateUserValidationSchema = z.object({
+  /**
+   * Họ và tên đệm
+   */
+  last_name: z.string().optional(),
+
+  /**
+   * Tên
+   */
+  first_name: z.string().optional(),
+
+  /**
+   * Ảnh đại diện
+   */
+  avatar: z.string().optional(),
 });

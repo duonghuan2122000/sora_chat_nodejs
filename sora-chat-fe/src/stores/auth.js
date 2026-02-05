@@ -28,5 +28,20 @@ export const useAuthStore = defineStore("auth", {
       await userApi.logoutAsync();
       this.user = null;
     },
+
+    /**
+     * Cập nhật thông tin user
+     * @author dbhuan 03.02.2026
+     */
+    async updateUser(payload) {
+      let result = await userApi.updateUserAsync(payload);
+      if (result.httpStatusCode === HttpStatusCode.OK) {
+        this.user = {
+          ...this.user,
+          ...result.data?.data,
+        };
+      }
+      return result;
+    },
   },
 });

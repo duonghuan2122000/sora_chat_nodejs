@@ -23,6 +23,8 @@
     - [x] Improved: Check for existing direct conversation before creating a new one.
 - **User Profile**
   - [x] Basic user info retrieval.
+  - [x] Update personal information (First name, Last name).
+  - [x] Update avatar (Hover to see "Đổi avatar", real-time preview, upload to Minio via API).
 - **Search (Users, Groups)**
   - [x] Search users by username, first name, last name.
   - [x] Search results separated into User and Group tabs.
